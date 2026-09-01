@@ -12,13 +12,13 @@
 
     <form class="login-form" action="/login" method="post">
         <div class="login-field">
-            <label class="login-label" for="student_id">学番</label>
-            <input class="login-input" type="text" id="student_id" name="student_id" required>
+            <label class="login-label login-label-lg" for="student_id">学籍番号</label>
+            <input class="login-input login-input-lg" type="text" id="student_id" name="student_id" required>
         </div>
 
         <div class="login-field">
-            <label class="login-label" for="password">パスワード</label>
-            <input class="login-input" type="password" id="password" name="password" required>
+            <label class="login-label login-label-lg" for="password">パスワード</label>
+            <input class="login-input login-input-lg" type="password" id="password" name="password" required>
         </div>
 
         <button class="login-submit" type="submit">ログイン</button>
@@ -27,6 +27,7 @@
     <div class="login-links">
         {# TODO: パスワード再発行機能は未実装 #}
         <a class="login-link" href="#">パスワードを忘れた方はこちら</a>
+        <br>
         <a class="login-link" href="/signup">アカウントをお持ちでない方はこちら</a>
     </div>
 </div>

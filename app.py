@@ -22,9 +22,20 @@ def role():
 def student():
     return render_template('student.html')
 
-@app.route('/teacher')
+@app.route('/teacher', methods=['GET', 'POST'])
 def teacher():
-    return render_template('teacher.html')
+    student_id = session['student_id']
+    if request.method == 'POST':
+        if request.form.get('action') == 'delete':
+            db.delete_availability(request.form['slot_id'], student_id)
+        else:
+            db.add_availability(
+                student_id,
+                request.form['date'],
+                int(request.form['period'])
+            )
+        return redirect(url_for('teacher'))
+    return render_template('teacher.html', slots=db.get_availabilities(student_id))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -37,6 +48,12 @@ def login():
             return redirect(url_for('role'))
         return render_template('login.html', error='学番かパスワードが違います')
     return render_template('login.html')
+
+@app.before_request
+def require_login():
+    allowed = ('index', 'login', 'signup', 'static')
+    if request.endpoint not in allowed and 'student_id' not in session:
+        return redirect(url_for('login'))
 
 @app.route('/signup')
 def signup():
@@ -56,7 +73,13 @@ def settings():
 
 @app.route('/points')
 def points():
-    return render_template('points.html')
+    balance = db.get_point_balance(session['student_id'])
+    return render_template('points.html', balance=balance)
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(debug=True)

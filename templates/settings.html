@@ -1,6 +1,77 @@
 {% extends "base.html" %}
-{% block title %}ベッチ - 設定{% endblock %}
+
+{# ==========================================================
+設定ページ (/settings) 担当: こうた
+base.html の block 名は role.html を見本にしています。
+もし block content ではなく別名だった場合はここだけ直してください。
+========================================================== #}
 
 {% block content %}
-<h2>設定</h2>
+<div class="set-page">
+
+    <h1 class="set-title">設定</h1>
+
+    {# --------------------------------------------------------
+    なおきへ: このページを表示するには、
+    app.py 側の /settings ルートで以下をテンプレートに渡してください。
+    - user: users テーブルの1行（学番・ニックネーム・アイコン・プロフィール文）
+    - subjects: subjects テーブル全件（教える教科の選択肢用）
+    - teaching_subject_ids: そのユーザーが今チェックしている教科IDのリスト
+    -------------------------------------------------------- #}
+
+    <form class="set-form" action="{{ url_for('settings') }}" method="post" enctype="multipart/form-data">
+
+        {# ---------- アイコン画像 ---------- #}
+        <div class="set-field">
+            <label class="set-label" for="set-icon-input">アイコン画像</label>
+
+            <div class="set-icon-preview">
+                {% if user.icon %}
+                <img class="set-icon-current" src="{{ url_for('static', filename='uploads/' + user.icon) }}"
+                    alt="現在のアイコン">
+                {% else %}
+                <div class="set-icon-placeholder">未設定</div>
+                {% endif %}
+            </div>
+
+            <input class="set-icon-input" id="set-icon-input" type="file" name="icon" accept="image/png, image/jpeg">
+            <p class="set-hint">PNG または JPEG。未選択の場合は今のアイコンのまま変更されません。</p>
+        </div>
+
+        {# ---------- ニックネーム ---------- #}
+        <div class="set-field">
+            <label class="set-label" for="set-nickname-input">ニックネーム</label>
+            <input class="set-text-input" id="set-nickname-input" type="text" name="nickname"
+                value="{{ user.nickname }}" maxlength="20" required>
+        </div>
+
+        {# ---------- プロフィール文 ---------- #}
+        <div class="set-field">
+            <label class="set-label" for="set-profile-input">プロフィール文</label>
+            <textarea class="set-textarea" id="set-profile-input" name="profile_text" maxlength="200"
+                rows="4">{{ user.profile_text }}</textarea>
+            <p class="set-hint">一覧には表示されません（設計メモ 9章より）。</p>
+        </div>
+
+        {# ---------- 対応教科（先生として教える科目） ---------- #}
+        <div class="set-field">
+            <span class="set-label">教えられる教科</span>
+            <p class="set-hint">チェックした教科があると、先生として一覧に表示されます。</p>
+
+            <div class="set-subject-list">
+                {% for subject in subjects %}
+                <label class="set-subject-item">
+                    <input type="checkbox" name="teaching_subject_ids" value="{{ subject.id }}" {% if subject.id in
+                        teaching_subject_ids %}checked{% endif %}>
+                    {{ subject.name }}
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <button class="set-submit-btn" type="submit">保存する</button>
+
+    </form>
+
+</div>
 {% endblock %}

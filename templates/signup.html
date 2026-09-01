@@ -1,6 +1,46 @@
 {% extends "base.html" %}
-{% block title %}ベッチ - アカウント作成{% endblock %}
 
+{# TODO: base.htmlの実際のblock名に合わせて "content" を修正する #}
 {% block content %}
-<h2>アカウント作成</h2>
+<div class="signup-container">
+    <h1 class="signup-title">アカウント作成</h1>
+    <p class="signup-subtitle">プロフィールを作って、教え合いを始めよう。</p>
+
+    {# TODO: なおきとすり合わせるまでの仮のname属性 #}
+    {# 学番・パスワードは設計メモのページ一覧に明記はないが、
+    usersテーブルに必須なのでここで入力させる想定。要すり合わせ #}
+    <form class="signup-form" action="/signup" method="post">
+        <div class="signup-field">
+            <label class="signup-label signup-label-lg" for="student_id">学籍番号</label>
+            <input class="signup-input signup-input-lg" type="text" id="student_id" name="student_id" required>
+        </div>
+
+        <div class="signup-field">
+            <label class="signup-label signup-label-lg" for="password">パスワード</label>
+            <input class="signup-input signup-input-lg" type="password" id="password" name="password" required>
+        </div>
+
+        <div class="signup-field">
+            <label class="signup-label" for="nickname">ニックネーム</label>
+            <input class="signup-input" type="text" id="nickname" name="nickname" required>
+        </div>
+
+        {# アイコンは削減候補機能。ファイル選択欄のみ用意 #}
+        <div class="signup-field">
+            <label class="signup-label" for="icon">アイコン</label>
+            <input class="signup-input signup-input-file" type="file" id="icon" name="icon" accept="image/*">
+        </div>
+
+        <div class="signup-field">
+            <label class="signup-label" for="profile_text">プロフィール文</label>
+            <textarea class="signup-textarea" id="profile_text" name="profile_text" rows="4"></textarea>
+        </div>
+
+        <button class="signup-submit" type="submit">作成する</button>
+    </form>
+
+    <div class="signup-links">
+        <a class="signup-link" href="/login">すでにアカウントをお持ちの方はこちら</a>
+    </div>
+</div>
 {% endblock %}

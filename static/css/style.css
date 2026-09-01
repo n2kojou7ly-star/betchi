@@ -1,3 +1,51 @@
+:root {
+    --main-color: #5C4033;
+    --main-dark: #4A3328;
+    --accent-color: #5C8A3A;
+    --text-color: #333333;
+    --bg-color: #FFFFFF;
+}
+
+body {
+    margin: 0;
+    font-family: "Hiragino Sans", "Helvetica Neue", sans-serif;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+}
+
+.common-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background-color: var(--main-color);
+    color: #FFFFFF;
+}
+
+.common-logo {
+    font-size: 20px;
+    margin: 0;
+}
+
+.common-menu-btn {
+    background: none;
+    border: none;
+    color: #FFFFFF;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.common-icon {
+    font-size: 20px;
+}
+
+main {
+    padding: 16px;
+}
+
+/* ==========================================================
+   ここから かとはる 担当分 
+   ========================================================== */
 /* かとはる: signup */
 .signup-field-top {
     display: flex;
@@ -8,3 +56,266 @@
 .signup-field-top .signup-label {
     margin-bottom: 4px;
 }
+
+/* ここまで こうた 担当分 */
+
+/* ==========================================================
+   ここから こうた 担当分 (settings.html / points.html)
+   style.css の末尾にそのまま追記してください。
+   色は Figma のスクショに合わせた茶色 + 緑アクセントです。
+   すでに base.html 側で色やフォントの共通変数が定義されている場合は
+   そちらに寄せて上書きしてください（例: var(--main-color) など）。
+   ========================================================== */
+
+/* ---------- 共通トーン ---------- */
+.set-page,
+.point-page {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 24px 16px;
+    color: #5C4033;
+}
+
+/* ==========================================================
+   設定ページ (settings.html)
+   ========================================================== */
+
+.set-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.set-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.set-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.set-label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #5C4033;
+}
+
+.set-hint {
+    font-size: 12px;
+    color: #999999;
+    margin: 0;
+}
+
+/* アイコン画像 */
+.set-icon-preview {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 4px;
+}
+
+.set-icon-current {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #5C4033;
+}
+
+.set-icon-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #E0E0E0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #777777;
+}
+
+.set-icon-input {
+    font-size: 14px;
+}
+
+/* テキスト入力 */
+.set-text-input,
+.set-textarea {
+    border: 1px solid #5C4033;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 15px;
+    font-family: inherit;
+    color: #333333;
+}
+
+.set-textarea {
+    resize: vertical;
+}
+
+/* 教科チェックボックス */
+.set-subject-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.set-subject-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+}
+
+/* 保存ボタン */
+.set-submit-btn {
+    margin-top: 8px;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: #5C4033;
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.set-submit-btn:hover {
+    background-color: #4A3328;
+}
+
+/* ==========================================================
+   ポイントページ (points.html)
+   ========================================================== */
+
+.point-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* 保有ポイント */
+.point-balance-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #5C4033;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 32px;
+}
+
+.point-balance-label {
+    font-size: 13px;
+    color: #777777;
+    margin-bottom: 4px;
+}
+
+.point-balance-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #5C4033;
+}
+
+.point-balance-value::after {
+    content: " pt";
+    font-size: 16px;
+    font-weight: normal;
+}
+
+/* アイテム交換 */
+.point-shop-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #5C4033;
+    padding-bottom: 8px;
+}
+
+.point-item-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.point-item-row {
+    border: 1px solid #DDDDDD;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.point-item-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+    color: #5C4033;
+}
+
+.point-item-name {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.point-item-arrow {
+    color: #5C8A3A;
+    /* Figmaの緑アクセントに合わせる */
+    font-size: 12px;
+    transition: transform 0.15s ease;
+}
+
+.point-item-toggle-open .point-item-arrow {
+    transform: rotate(180deg);
+}
+
+.point-item-sublist {
+    list-style: none;
+    margin: 0;
+    padding: 0 16px 12px 16px;
+}
+
+.point-subitem {
+    padding: 8px 0;
+    border-top: 1px solid #EEEEEE;
+    font-size: 14px;
+    color: #333333;
+}
+
+.point-exchange-form {
+    margin: 0;
+}
+
+.point-exchange-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    background-color: #5C8A3A;
+    color: #FFFFFF;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.point-exchange-btn:hover {
+    background-color: #4A7030;
+}
+
+.point-exchange-btn-disabled {
+    background-color: #CCCCCC;
+    cursor: not-allowed;
+}
+
+/* ここまで こうた 担当分 */

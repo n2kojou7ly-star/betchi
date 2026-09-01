@@ -23,3 +23,45 @@ CREATE TABLE teaching_subjects (
     FOREIGN KEY (student_id) REFERENCES users(student_id),
     FOREIGN KEY (subject_id) REFERENCES subjects(subject_id)
 );
+
+DROP TABLE IF EXISTS availabilities;
+
+CREATE TABLE availabilities (
+    slot_id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id   TEXT NOT NULL,
+    date         TEXT NOT NULL,
+    period       INTEGER NOT NULL,
+    status       TEXT NOT NULL DEFAULT '空き',
+    UNIQUE (student_id, date, period),
+    FOREIGN KEY (student_id) REFERENCES users(student_id)
+);
+
+DROP TABLE IF EXISTS point_transactions;
+DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS exchanges;
+
+CREATE TABLE point_transactions (
+    transaction_id  INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id      TEXT NOT NULL,
+    amount          INTEGER NOT NULL,
+    reason          TEXT NOT NULL,
+    request_id      INTEGER,
+    created_at      TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+    FOREIGN KEY (student_id) REFERENCES users(student_id)
+);
+
+CREATE TABLE items (
+    item_id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    item_name       TEXT NOT NULL,
+    required_point  INTEGER NOT NULL
+);
+
+CREATE TABLE exchanges (
+    exchange_id     INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id      TEXT NOT NULL,
+    item_id         INTEGER NOT NULL,
+    quantity        INTEGER NOT NULL DEFAULT 1,
+    created_at      TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+    FOREIGN KEY (student_id) REFERENCES users(student_id),
+    FOREIGN KEY (item_id) REFERENCES items(item_id)
+);

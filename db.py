@@ -29,3 +29,42 @@ def get_teaching_subject_ids(student_id):
     ).fetchall()
     conn.close()
     return [r["subject_id"] for r in rows]
+
+def add_availability(student_id, date, period):
+    conn = get_conn()
+    try:
+        conn.execute(
+            "INSERT INTO availabilities (student_id, date, period) VALUES (?, ?, ?)",
+            (student_id, date, period)
+        )
+        conn.commit()
+    except sqlite3.IntegrityError:
+        pass
+    conn.close()
+
+def delete_availability(slot_id, student_id):
+    conn = get_conn()
+    conn.execute(
+        "DELETE FROM availabilities WHERE slot_id = ? AND student_id = ?",
+        (slot_id, student_id)
+    )
+    conn.commit()
+    conn.close()
+
+def get_availabilities(student_id):
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT * FROM availabilities WHERE student_id = ? ORDER BY date, period",
+        (student_id,)
+    ).fetchall()
+    conn.close()
+    return rows
+
+def get_point_balance(student_id):
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT COALESCE(SUM(amount), 0) AS balance FROM point_transactions WHERE student_id = ?",
+        (student_id,)
+    ).fetchone()
+    conn.close()
+    return row["balance"]
