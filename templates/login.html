@@ -1,6 +1,33 @@
 {% extends "base.html" %}
-{% block title %}ベッチ - ログイン{% endblock %}
 
+{# TODO: base.htmlの実際のblock名に合わせて "content" を修正する #}
 {% block content %}
-<h2>ログイン</h2>
+<div class="login-container">
+    <h1 class="login-title">ログイン</h1>
+    <p class="login-subtitle">学び合う仲間と、今すぐつながろう。</p>
+
+    {% if error %}
+    <p class="login-error">{{ error }}</p>
+    {% endif %}
+
+    <form class="login-form" action="/login" method="post">
+        <div class="login-field">
+            <label class="login-label" for="student_id">学番</label>
+            <input class="login-input" type="text" id="student_id" name="student_id" required>
+        </div>
+
+        <div class="login-field">
+            <label class="login-label" for="password">パスワード</label>
+            <input class="login-input" type="password" id="password" name="password" required>
+        </div>
+
+        <button class="login-submit" type="submit">ログイン</button>
+    </form>
+
+    <div class="login-links">
+        {# TODO: パスワード再発行機能は未実装 #}
+        <a class="login-link" href="#">パスワードを忘れた方はこちら</a>
+        <a class="login-link" href="/signup">アカウントをお持ちでない方はこちら</a>
+    </div>
+</div>
 {% endblock %}

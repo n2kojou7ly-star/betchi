@@ -1,4 +1,10 @@
 /* かとはる: signup */
 .signup-field-top {
+    display: flex;
+    flex-direction: column;
     align-items: flex-start;
+}
+
+.signup-field-top .signup-label {
+    margin-bottom: 4px;
 }

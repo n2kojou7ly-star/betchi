@@ -1,4 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, session, request
+from werkzeug.security import check_password_hash
+import db
 
 app = Flask(__name__)
 app.secret_key = "betchi-dev-key"
@@ -24,8 +26,16 @@ def student():
 def teacher():
     return render_template('teacher.html')
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        student_id = request.form['student_id']
+        password = request.form['password']
+        user = db.get_user_by_id(student_id)
+        if user and check_password_hash(user['password_hash'], password):
+            session['student_id'] = student_id
+            return redirect(url_for('role'))
+        return render_template('login.html', error='学番かパスワードが違います')
     return render_template('login.html')
 
 @app.route('/signup')
