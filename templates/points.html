@@ -1,6 +1,64 @@
 {% extends "base.html" %}
-{% block title %}ベッチ - ポイント{% endblock %}
+
+{# ==========================================================
+ポイントページ (/points) 担当: こうた
+base.html の block 名は role.html を見本にしています。
+もし block content ではなく別名だった場合はここだけ直してください。
+========================================================== #}
+
 
 {% block content %}
-<h2>ポイント</h2>
+<div class="point-page">
+
+    <h1 class="point-title">ポイント</h1>
+
+    {# --------------------------------------------------------
+    なおきへ: このページを表示するには、
+    app.py 側の /points ルートで以下をテンプレートに渡してください。
+    - balance: point_transactions の合計（残高列は持たない設計。11章参照）
+    - items: items テーブル全件（アイテムID / 名前 / 必要ポイント）
+    -------------------------------------------------------- #}
+
+    <div class="point-balance-box">
+        <span class="point-balance-label">保有ポイント</span>
+        <span class="point-balance-value">{{ balance }}</span>
+    </div>
+
+    <h2 class="point-shop-title">アイテム交換</h2>
+
+    {# --------------------------------------------------------
+    items テーブルの中身（各アイテムの必要ポイント等）がまだ
+    チームで未決定のため、一旦は名前だけをハードコードで表示。
+    決定後は items をループする形に戻す（下にコメントアウトで残す）。
+    -------------------------------------------------------- #}
+    <ul class="point-item-list">
+        <li class="point-item-row">アイコンフレーム</li>
+        <li class="point-item-row">キャッチコピー</li>
+        <li class="point-item-row">エフェクト</li>
+        <li class="point-item-row">スタンプ</li>
+    </ul>
+
+    {#
+    <div class="point-item-list">
+        {% for item in items %}
+        <div class="point-item-row">
+            <span class="point-item-name">{{ item.name }}</span>
+            <span class="point-item-cost">{{ item.required_points }} pt</span>
+
+            <form class="point-exchange-form" action="{{ url_for('exchange_item') }}" method="post">
+                <input type="hidden" name="item_id" value="{{ item.id }}">
+                {% if balance >= item.required_points %}
+                <button class="point-exchange-btn" type="submit">交換する</button>
+                {% else %}
+                <button class="point-exchange-btn point-exchange-btn-disabled" type="button" disabled>
+                    ポイント不足
+                </button>
+                {% endif %}
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    #}
+
+</div>
 {% endblock %}

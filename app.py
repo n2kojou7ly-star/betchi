@@ -44,7 +44,15 @@ def signup():
 
 @app.route('/settings')
 def settings():
-    return render_template('settings.html')
+    user = db.get_user_by_id(session['student_id'])
+    subjects = db.get_all_subjects()
+    teaching_subject_ids = db.get_teaching_subject_ids(session['student_id'])
+    return render_template(
+        'settings.html',
+        user=user,
+        subjects=subjects,
+        teaching_subject_ids=teaching_subject_ids
+    )
 
 @app.route('/points')
 def points():
