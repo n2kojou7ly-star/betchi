@@ -6,7 +6,6 @@ base.html の block 名は role.html を見本にしています。
 もし block content ではなく別名だった場合はここだけ直してください。
 ========================================================== #}
 
-
 {% block content %}
 <div class="point-page">
 
@@ -19,9 +18,9 @@ base.html の block 名は role.html を見本にしています。
     - items: items テーブル全件（アイテムID / 名前 / 必要ポイント）
     -------------------------------------------------------- #}
 
+    <p class="point-balance-label">保有ポイント</p>
     <div class="point-balance-box">
-        <span class="point-balance-label">保有ポイント</span>
-        <span class="point-balance-value">{{ balance }}</span>
+        <span class="point-balance-value">{{ balance }}P</span>
     </div>
 
     <h2 class="point-shop-title">アイテム交換</h2>
@@ -32,11 +31,111 @@ base.html の block 名は role.html を見本にしています。
     決定後は items をループする形に戻す（下にコメントアウトで残す）。
     -------------------------------------------------------- #}
     <ul class="point-item-list">
-        <li class="point-item-row">アイコンフレーム</li>
-        <li class="point-item-row">キャッチコピー</li>
-        <li class="point-item-row">エフェクト</li>
-        <li class="point-item-row">スタンプ</li>
+
+        <li class="point-item-row">
+            <button class="point-item-toggle" type="button" data-target="point-list-icon-frame">
+                <span class="point-item-name">アイコンフレーム</span>
+                <span class="point-item-arrow">▼</span>
+            </button>
+            {# TODO: 実際の商品データが決まったら items をループする形に置き換える #}
+            <ul class="point-item-sublist" id="point-list-icon-frame" hidden>
+                <li class="point-subitem">
+                    <span class="point-subitem-name">仮の商品A</span>
+                    <span class="point-subitem-cost">○○P</span>
+                </li>
+                <li class="point-subitem">
+                    <span class="point-subitem-name">仮の商品B</span>
+                    <span class="point-subitem-cost">○○P</span>
+                </li>
+                <li class="point-subitem">
+                    <span class="point-subitem-name">仮の商品C</span>
+                    <span class="point-subitem-cost">○○P</span>
+                </li>
+            </ul>
+        </li>
+
+        <li class="point-item-row">
+            <button class="point-item-toggle" type="button" data-target="point-list-catchcopy">
+                <span class="point-item-name">キャッチコピー</span>
+                <span class="point-item-arrow">▼</span>
+            </button>
+            <ul class="point-item-sublist" id="point-list-catchcopy" hidden>
+                <li class="point-subitem">
+                    <span class="point-subitem-name">仮の商品A</span>
+                    <span class="point-subitem-cost">○○P</span>
+                </li>
+                <li class="point-subitem">
+                    <span class="point-subitem-name">仮の商品B</span>
+                    <span class="point-subitem-cost">○○P</span>
+                </li>
+                <li class="point-subitem">
+                    <span class="point-subitem-name">仮の商品C</span>
+                    <span class="point-subitem-cost">○○P</span>
+                </li>
+            </ul>
+        </li>
+
+        <li class="point-item-row">
+            <button class="point-item-toggle" type="button" data-target="point-list-effect">
+                <span class="point-item-name">エフェクト</span>
+                <span class="point-item-arrow">▼</span>
+            </button>
+            <ul class="point-item-sublist" id="point-list-effect" hidden>
+                <li class="point-subitem">
+                    <span class="point-subitem-name">仮の商品A</span>
+                    <span class="point-subitem-cost">○○P</span>
+                </li>
+                <li class="point-subitem">
+                    <span class="point-subitem-name">仮の商品B</span>
+                    <span class="point-subitem-cost">○○P</span>
+                </li>
+                <li class="point-subitem">
+                    <span class="point-subitem-name">仮の商品C</span>
+                    <span class="point-subitem-cost">○○P</span>
+                </li>
+            </ul>
+        </li>
+
+        <li class="point-item-row">
+            <button class="point-item-toggle" type="button" data-target="point-list-stamp">
+                <span class="point-item-name">スタンプ</span>
+                <span class="point-item-arrow">▼</span>
+            </button>
+            <ul class="point-item-sublist" id="point-list-stamp" hidden>
+                <li class="point-subitem">
+                    <span class="point-subitem-name">仮の商品A</span>
+                    <span class="point-subitem-cost">○○P</span>
+                </li>
+                <li class="point-subitem">
+                    <span class="point-subitem-name">仮の商品B</span>
+                    <span class="point-subitem-cost">○○P</span>
+                </li>
+                <li class="point-subitem">
+                    <span class="point-subitem-name">仮の商品C</span>
+                    <span class="point-subitem-cost">○○P</span>
+                </li>
+            </ul>
+        </li>
+
     </ul>
+
+    {# --------------------------------------------------------
+    開閉のJSはこのファイル内に直接書く（settings.html / points.html は
+    こうた担当ファイルなので、この中で完結させる。static/js を新しく
+    増やす場合はなおきに追加を依頼する必要があるため）。
+    -------------------------------------------------------- #}
+    <script>
+        document.querySelectorAll('.point-item-toggle').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var targetId = btn.getAttribute('data-target');
+                var list = document.getElementById(targetId);
+                var isOpen = !list.hidden;
+
+                list.hidden = isOpen;
+                btn.classList.toggle('point-item-toggle-open', !isOpen);
+            });
+        });
+    </script>
 
     {#
     <div class="point-item-list">
