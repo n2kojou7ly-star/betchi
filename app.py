@@ -3,6 +3,7 @@ from werkzeug.security import check_password_hash
 import db
 
 app = Flask(__name__)
+ICONS = ['icon1.png', 'icon2.png', 'icon3.png', 'icon4.png', 'icon5.png']
 app.secret_key = "betchi-dev-key"
 
 @app.route('/')
@@ -59,16 +60,27 @@ def require_login():
 def signup():
     return render_template('signup.html')
 
-@app.route('/settings')
+@app.route('/settings', methods=['GET', 'POST'])
 def settings():
-    user = db.get_user_by_id(session['student_id'])
+    student_id = session['student_id']
+    if request.method == 'POST':
+        db.update_profile(
+            student_id,
+            request.form['nickname'],
+            request.form['profile'],
+            request.form['icon']
+        )
+        db.set_teaching_subjects(student_id, request.form.getlist('teaching_subject_ids'))
+        return redirect(url_for('settings'))
+    user = db.get_user_by_id(student_id)
     subjects = db.get_all_subjects()
-    teaching_subject_ids = db.get_teaching_subject_ids(session['student_id'])
+    teaching_subject_ids = db.get_teaching_subject_ids(student_id)
     return render_template(
         'settings.html',
         user=user,
         subjects=subjects,
-        teaching_subject_ids=teaching_subject_ids
+        teaching_subject_ids=teaching_subject_ids,
+        icons=ICONS
     )
 
 @app.route('/points')

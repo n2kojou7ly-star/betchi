@@ -60,9 +60,9 @@ base.html の block 名は role.html を見本にしています。
             <div class="set-subject-list">
                 {% for subject in subjects %}
                 <label class="set-subject-item">
-                    <input type="checkbox" name="teaching_subject_ids" value="{{ subject.id }}" {% if subject.id in
-                        teaching_subject_ids %}checked{% endif %}>
-                    {{ subject.name }}
+                    <input type="checkbox" name="teaching_subject_ids" value="{{ subject.subject_id }}" {% if
+                        subject.subject_id in teaching_subject_ids %}checked{% endif %}>
+                    {{ subject.subject_name }}
                 </label>
                 {% endfor %}
             </div>

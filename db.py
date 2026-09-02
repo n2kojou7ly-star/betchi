@@ -68,3 +68,23 @@ def get_point_balance(student_id):
     ).fetchone()
     conn.close()
     return row["balance"]
+
+def update_profile(student_id, nickname, profile, icon):
+    conn = get_conn()
+    conn.execute(
+        "UPDATE users SET nickname = ?, profile = ?, icon = ? WHERE student_id = ?",
+        (nickname, profile, icon, student_id)
+    )
+    conn.commit()
+    conn.close()
+
+def set_teaching_subjects(student_id, subject_ids):
+    conn = get_conn()
+    conn.execute("DELETE FROM teaching_subjects WHERE student_id = ?", (student_id,))
+    for sid in subject_ids:
+        conn.execute(
+            "INSERT INTO teaching_subjects (student_id, subject_id) VALUES (?, ?)",
+            (student_id, sid)
+        )
+    conn.commit()
+    conn.close()
