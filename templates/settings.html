@@ -17,25 +17,24 @@ base.html の block 名は role.html を見本にしています。
     - user: users テーブルの1行（学番・ニックネーム・アイコン・プロフィール文）
     - subjects: subjects テーブル全件（教える教科の選択肢用）
     - teaching_subject_ids: そのユーザーが今チェックしている教科IDのリスト
+    - icons: 選べるアイコンのファイル名5件
     -------------------------------------------------------- #}
 
-    <form class="set-form" action="{{ url_for('settings') }}" method="post" enctype="multipart/form-data">
+    <form class="set-form" action="{{ url_for('settings') }}" method="post">
 
-        {# ---------- アイコン画像 ---------- #}
+        {# ---------- アイコン画像（5件から選択） ---------- #}
         <div class="set-field">
-            <label class="set-label" for="set-icon-input">アイコン画像</label>
+            <span class="set-label">アイコン画像</span>
+            <p class="set-hint">好きなアイコンを選んでください。</p>
 
-            <div class="set-icon-preview">
-                {% if user.icon %}
-                <img class="set-icon-current" src="{{ url_for('static', filename='uploads/' + user.icon) }}"
-                    alt="現在のアイコン">
-                {% else %}
-                <div class="set-icon-placeholder">未設定</div>
-                {% endif %}
+            <div class="set-icon-options">
+                {% for icon in icons %}
+                <label class="set-icon-option">
+                    <input type="radio" name="icon" value="{{ icon }}" {% if user.icon==icon %}checked{% endif %}>
+                    <img src="{{ url_for('static', filename='img/' + icon) }}" class="set-icon-current" alt="アイコン候補">
+                </label>
+                {% endfor %}
             </div>
-
-            <input class="set-icon-input" id="set-icon-input" type="file" name="icon" accept="image/png, image/jpeg">
-            <p class="set-hint">PNG または JPEG。未選択の場合は今のアイコンのまま変更されません。</p>
         </div>
 
         {# ---------- ニックネーム ---------- #}
@@ -48,8 +47,8 @@ base.html の block 名は role.html を見本にしています。
         {# ---------- プロフィール文 ---------- #}
         <div class="set-field">
             <label class="set-label" for="set-profile-input">プロフィール文</label>
-            <textarea class="set-textarea" id="set-profile-input" name="profile_text" maxlength="200"
-                rows="4">{{ user.profile_text }}</textarea>
+            <textarea class="set-textarea" id="set-profile-input" name="profile" maxlength="200"
+                rows="4">{{ user.profile }}</textarea>
             <p class="set-hint">一覧には表示されません（設計メモ 9章より）。</p>
         </div>
 
@@ -61,9 +60,9 @@ base.html の block 名は role.html を見本にしています。
             <div class="set-subject-list">
                 {% for subject in subjects %}
                 <label class="set-subject-item">
-                    <input type="checkbox" name="teaching_subject_ids" value="{{ subject.id }}" {% if subject.id in
-                        teaching_subject_ids %}checked{% endif %}>
-                    {{ subject.name }}
+                    <input type="checkbox" name="teaching_subject_ids" value="{{ subject.subject_id }}" {% if
+                        subject.subject_id in teaching_subject_ids %}checked{% endif %}>
+                    {{ subject.subject_name }}
                 </label>
                 {% endfor %}
             </div>
