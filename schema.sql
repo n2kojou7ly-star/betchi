@@ -51,7 +51,8 @@ CREATE TABLE point_transactions (
 );
 
 CREATE TABLE items (
-    item_id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    item_id         TEXT PRIMARY KEY,
+    category        TEXT NOT NULL,
     item_name       TEXT NOT NULL,
     required_point  INTEGER NOT NULL
 );
@@ -59,7 +60,7 @@ CREATE TABLE items (
 CREATE TABLE exchanges (
     exchange_id     INTEGER PRIMARY KEY AUTOINCREMENT,
     student_id      TEXT NOT NULL,
-    item_id         INTEGER NOT NULL,
+    item_id         TEXT NOT NULL,
     quantity        INTEGER NOT NULL DEFAULT 1,
     created_at      TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
     FOREIGN KEY (student_id) REFERENCES users(student_id),

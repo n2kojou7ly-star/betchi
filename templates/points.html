@@ -2,8 +2,6 @@
 
 {# ==========================================================
 ポイントページ (/points) 担当: こうた
-base.html の block 名は role.html を見本にしています。
-もし block content ではなく別名だった場合はここだけ直してください。
 ========================================================== #}
 
 {% block content %}
@@ -12,10 +10,10 @@ base.html の block 名は role.html を見本にしています。
     <h1 class="point-title">ポイント</h1>
 
     {# --------------------------------------------------------
-    なおきへ: このページを表示するには、
-    app.py 側の /points ルートで以下をテンプレートに渡してください。
+    app.py の /points ルートから渡される変数:
     - balance: point_transactions の合計（残高列は持たない設計。11章参照）
-    - items: items テーブル全件（アイテムID / 名前 / 必要ポイント）
+    - items: items テーブル全件（item_id / category / item_name / required_point）
+    - owned_item_ids: 交換済みのアイテムIDのリスト
     -------------------------------------------------------- #}
 
     <p class="point-balance-label">保有ポイント</p>
@@ -26,97 +24,45 @@ base.html の block 名は role.html を見本にしています。
     <h2 class="point-shop-title">アイテム交換</h2>
 
     {# --------------------------------------------------------
-    items テーブルの中身（各アイテムの必要ポイント等）がまだ
-    チームで未決定のため、一旦は名前だけをハードコードで表示。
-    決定後は items をループする形に戻す（下にコメントアウトで残す）。
+    items をカテゴリごとにまとめて表示する。
+    カテゴリ名は items テーブルの category 列から取得している。
     -------------------------------------------------------- #}
+    {% set categories = [
+    ('アイコンフレーム', 'point-list-icon-frame'),
+    ('キャッチコピー', 'point-list-catchcopy'),
+    ('エフェクト', 'point-list-effect'),
+    ('スタンプ', 'point-list-stamp')
+    ] %}
+
     <ul class="point-item-list">
-
+        {% for category_name, list_id in categories %}
         <li class="point-item-row">
-            <button class="point-item-toggle" type="button" data-target="point-list-icon-frame">
-                <span class="point-item-name">アイコンフレーム</span>
+            <button class="point-item-toggle" type="button" data-target="{{ list_id }}">
+                <span class="point-item-name">{{ category_name }}</span>
                 <span class="point-item-arrow">▼</span>
             </button>
-            {# TODO: 実際の商品データが決まったら items をループする形に置き換える #}
-            <ul class="point-item-sublist" id="point-list-icon-frame" hidden>
+            <ul class="point-item-sublist" id="{{ list_id }}" hidden>
+                {% for item in items %}
+                {% if item.category == category_name %}
                 <li class="point-subitem">
-                    <span class="point-subitem-name">仮の商品A</span>
-                    <span class="point-subitem-cost">○○P</span>
+                    <span class="point-subitem-name">{{ item.item_name }}</span>
+                    <span class="point-subitem-cost">{{ item.required_point }}P</span>
+                    <form class="point-subitem-form" action="{{ url_for('exchange_item_route') }}" method="post">
+                        <input type="hidden" name="item_id" value="{{ item.item_id }}">
+                        {% if owned_item_ids and item.item_id in owned_item_ids %}
+                        <button class="point-subitem-btn point-subitem-btn-owned" type="button" disabled>獲得済み</button>
+                        {% elif balance < item.required_point %} <button
+                            class="point-subitem-btn point-exchange-btn-disabled" type="button" disabled>ポイント不足</button>
+                            {% else %}
+                            <button class="point-subitem-btn" type="submit">交換する</button>
+                            {% endif %}
+                    </form>
                 </li>
-                <li class="point-subitem">
-                    <span class="point-subitem-name">仮の商品B</span>
-                    <span class="point-subitem-cost">○○P</span>
-                </li>
-                <li class="point-subitem">
-                    <span class="point-subitem-name">仮の商品C</span>
-                    <span class="point-subitem-cost">○○P</span>
-                </li>
+                {% endif %}
+                {% endfor %}
             </ul>
         </li>
-
-        <li class="point-item-row">
-            <button class="point-item-toggle" type="button" data-target="point-list-catchcopy">
-                <span class="point-item-name">キャッチコピー</span>
-                <span class="point-item-arrow">▼</span>
-            </button>
-            <ul class="point-item-sublist" id="point-list-catchcopy" hidden>
-                <li class="point-subitem">
-                    <span class="point-subitem-name">仮の商品A</span>
-                    <span class="point-subitem-cost">○○P</span>
-                </li>
-                <li class="point-subitem">
-                    <span class="point-subitem-name">仮の商品B</span>
-                    <span class="point-subitem-cost">○○P</span>
-                </li>
-                <li class="point-subitem">
-                    <span class="point-subitem-name">仮の商品C</span>
-                    <span class="point-subitem-cost">○○P</span>
-                </li>
-            </ul>
-        </li>
-
-        <li class="point-item-row">
-            <button class="point-item-toggle" type="button" data-target="point-list-effect">
-                <span class="point-item-name">エフェクト</span>
-                <span class="point-item-arrow">▼</span>
-            </button>
-            <ul class="point-item-sublist" id="point-list-effect" hidden>
-                <li class="point-subitem">
-                    <span class="point-subitem-name">仮の商品A</span>
-                    <span class="point-subitem-cost">○○P</span>
-                </li>
-                <li class="point-subitem">
-                    <span class="point-subitem-name">仮の商品B</span>
-                    <span class="point-subitem-cost">○○P</span>
-                </li>
-                <li class="point-subitem">
-                    <span class="point-subitem-name">仮の商品C</span>
-                    <span class="point-subitem-cost">○○P</span>
-                </li>
-            </ul>
-        </li>
-
-        <li class="point-item-row">
-            <button class="point-item-toggle" type="button" data-target="point-list-stamp">
-                <span class="point-item-name">スタンプ</span>
-                <span class="point-item-arrow">▼</span>
-            </button>
-            <ul class="point-item-sublist" id="point-list-stamp" hidden>
-                <li class="point-subitem">
-                    <span class="point-subitem-name">仮の商品A</span>
-                    <span class="point-subitem-cost">○○P</span>
-                </li>
-                <li class="point-subitem">
-                    <span class="point-subitem-name">仮の商品B</span>
-                    <span class="point-subitem-cost">○○P</span>
-                </li>
-                <li class="point-subitem">
-                    <span class="point-subitem-name">仮の商品C</span>
-                    <span class="point-subitem-cost">○○P</span>
-                </li>
-            </ul>
-        </li>
-
+        {% endfor %}
     </ul>
 
     {# --------------------------------------------------------
@@ -136,28 +82,6 @@ base.html の block 名は role.html を見本にしています。
             });
         });
     </script>
-
-    {#
-    <div class="point-item-list">
-        {% for item in items %}
-        <div class="point-item-row">
-            <span class="point-item-name">{{ item.name }}</span>
-            <span class="point-item-cost">{{ item.required_points }} pt</span>
-
-            <form class="point-exchange-form" action="{{ url_for('exchange_item') }}" method="post">
-                <input type="hidden" name="item_id" value="{{ item.id }}">
-                {% if balance >= item.required_points %}
-                <button class="point-exchange-btn" type="submit">交換する</button>
-                {% else %}
-                <button class="point-exchange-btn point-exchange-btn-disabled" type="button" disabled>
-                    ポイント不足
-                </button>
-                {% endif %}
-            </form>
-        </div>
-        {% endfor %}
-    </div>
-    #}
 
 </div>
 {% endblock %}

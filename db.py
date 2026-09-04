@@ -88,3 +88,36 @@ def set_teaching_subjects(student_id, subject_ids):
         )
     conn.commit()
     conn.close()
+
+def get_all_items():
+    conn = get_conn()
+    rows = conn.execute("SELECT * FROM items ORDER BY item_id").fetchall()
+    conn.close()
+    return rows
+
+def get_item(item_id):
+    conn = get_conn()
+    row = conn.execute("SELECT * FROM items WHERE item_id = ?", (item_id,)).fetchone()
+    conn.close()
+    return row
+
+def get_owned_item_ids(student_id):
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT item_id FROM exchanges WHERE student_id = ?", (student_id,)
+    ).fetchall()
+    conn.close()
+    return [r["item_id"] for r in rows]
+
+def exchange_item(student_id, item_id, required_point):
+    conn = get_conn()
+    conn.execute(
+        "INSERT INTO exchanges (student_id, item_id, quantity) VALUES (?, ?, 1)",
+        (student_id, item_id)
+    )
+    conn.execute(
+        "INSERT INTO point_transactions (student_id, amount, reason) VALUES (?, ?, 'アイテム交換')",
+        (student_id, -required_point)
+    )
+    conn.commit()
+    conn.close()

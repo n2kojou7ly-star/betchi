@@ -288,16 +288,46 @@ main {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
     padding: 8px 0;
     border-top: 1px solid #EEEEEE;
     font-size: 14px;
     color: #333333;
 }
 
+.point-subitem-name {
+    flex: 1;
+}
+
 .point-subitem-cost {
     color: #5C8A3A;
     /* Figmaの緑アクセントに合わせる */
     font-size: 13px;
+    white-space: nowrap;
+}
+
+.point-subitem-form {
+    margin: 0;
+}
+
+.point-subitem-btn {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    background-color: #5C8A3A;
+    color: #FFFFFF;
+    font-size: 12px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.point-subitem-btn:hover {
+    background-color: #4A7030;
+}
+
+.point-subitem-btn-owned {
+    background-color: #CCCCCC;
+    cursor: not-allowed;
 }
 
 .point-exchange-form {

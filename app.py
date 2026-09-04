@@ -85,8 +85,21 @@ def settings():
 
 @app.route('/points')
 def points():
-    balance = db.get_point_balance(session['student_id'])
-    return render_template('points.html', balance=balance)
+    student_id = session['student_id']
+    return render_template(
+        'points.html',
+        balance=db.get_point_balance(student_id),
+        items=db.get_all_items(),
+        owned_item_ids=db.get_owned_item_ids(student_id)
+    )
+
+@app.route('/exchange_item', methods=['POST'])
+def exchange_item_route():
+    student_id = session['student_id']
+    item = db.get_item(request.form['item_id'])
+    if item and db.get_point_balance(student_id) >= item['required_point']:
+        db.exchange_item(student_id, item['item_id'], item['required_point'])
+    return redirect(url_for('points'))
 
 @app.route('/logout')
 def logout():
