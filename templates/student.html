@@ -47,4 +47,32 @@
     {% endfor %}
 </ul>
 {% endif %}
+
+{% if pending %}
+<h3>授業の完了確認</h3>
+<ul class="stu-request-list">
+    {% for p in pending %}
+    <li class="tea-request-item">
+        <div>
+            {{ p.nickname }}さん / {{ p.subject_name }} / {{ p.slot_count }}コマ<br>
+            {% if p.status == '完了待ち' %}
+            {% if p.completed_by == session['student_id'] %}
+            相手の確認待ちです
+            {% else %}
+            <strong>相手が完了を押しました</strong>
+            {% endif %}
+            {% endif %}
+        </div>
+        {% if p.status == '承認' or p.completed_by != session['student_id'] %}
+        <form method="post" action="{{ url_for('complete') }}">
+            <input type="hidden" name="request_id" value="{{ p.request_id }}">
+            <input type="hidden" name="back" value="{{ request.path }}">
+            <button type="submit">完了</button>
+        </form>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
 {% endblock %}

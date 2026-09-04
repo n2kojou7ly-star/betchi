@@ -33,7 +33,8 @@ def student():
         results=results,
         subject_id=subject_id,
         date=date,
-        my_requests=db.get_requests_for_student(student_id)
+        my_requests=db.get_requests_for_student(student_id),
+        pending=db.get_pending_completions(student_id)
     )
 
 @app.route('/teacher', methods=['GET', 'POST'])
@@ -53,7 +54,8 @@ def teacher():
     return render_template(
         'teacher.html',
         slots=db.get_availabilities(student_id),
-        requests=db.get_requests_for_teacher(student_id)
+        requests=db.get_requests_for_teacher(student_id),
+        pending=db.get_pending_completions(student_id)
     )
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -171,6 +173,11 @@ def chat(room_id):
         messages=db.get_messages(room_id),
         me=student_id
     )
+
+@app.route('/complete', methods=['POST'])
+def complete():
+    db.press_complete(request.form['request_id'], session['student_id'])
+    return redirect(request.form.get('back', url_for('student')))
 
 if __name__ == '__main__':
     app.run(debug=True)

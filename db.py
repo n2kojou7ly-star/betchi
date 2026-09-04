@@ -302,3 +302,76 @@ def add_message(room_id, sender_id, body):
     )
     conn.commit()
     conn.close()
+
+POINT_PER_SLOT = 20
+AUTO_COMPLETE_MINUTES = 1440  # デモ用に短くするならここを変える
+
+def get_pending_completions(student_id):
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT r.*, u.nickname, s.subject_name,
+               (SELECT COUNT(*) FROM match_request_slots ms WHERE ms.request_id = r.request_id) AS slot_count
+        FROM match_requests r
+        JOIN users u ON u.student_id =
+            CASE WHEN r.student_id = ? THEN r.teacher_id ELSE r.student_id END
+        JOIN subjects s ON s.subject_id = r.subject_id
+        WHERE (r.student_id = ? OR r.teacher_id = ?)
+          AND r.status IN ('承認', '完了待ち')
+        ORDER BY r.created_at
+    """, (student_id, student_id, student_id)).fetchall()
+    conn.close()
+    return rows
+
+def press_complete(request_id, student_id):
+    conn = get_conn()
+    req = conn.execute("""
+        SELECT * FROM match_requests
+        WHERE request_id = ? AND (student_id = ? OR teacher_id = ?)
+    """, (request_id, student_id, student_id)).fetchone()
+    if req is None:
+        conn.close()
+        return
+    if req["status"] == "承認":
+        conn.execute("""
+            UPDATE match_requests
+            SET status = '完了待ち', completed_by = ?,
+                waiting_since = datetime('now', 'localtime')
+            WHERE request_id = ?
+        """, (student_id, request_id))
+        conn.commit()
+    elif req["status"] == "完了待ち" and req["completed_by"] != student_id:
+        _finish(conn, req)
+    conn.close()
+
+def _finish(conn, req):
+    already = conn.execute(
+        "SELECT 1 FROM point_transactions WHERE related_request_id = ? AND reason = '授業完了'",
+        (req["request_id"],)
+    ).fetchone()
+    if already:
+        return
+    count = conn.execute(
+        "SELECT COUNT(*) AS c FROM match_request_slots WHERE request_id = ?",
+        (req["request_id"],)
+    ).fetchone()["c"]
+    conn.execute("""
+        UPDATE match_requests SET status = '完了',
+            completed_at = datetime('now', 'localtime')
+        WHERE request_id = ?
+    """, (req["request_id"],))
+    conn.execute("""
+        INSERT INTO point_transactions (student_id, amount, reason, related_request_id)
+        VALUES (?, ?, '授業完了', ?)
+    """, (req["teacher_id"], count * POINT_PER_SLOT, req["request_id"]))
+    conn.commit()
+
+def auto_complete_expired():
+    conn = get_conn()
+    rows = conn.execute(f"""
+        SELECT * FROM match_requests
+        WHERE status = '完了待ち'
+          AND datetime(waiting_since, '+{AUTO_COMPLETE_MINUTES} minutes') <= datetime('now', 'localtime')
+    """).fetchall()
+    for req in rows:
+        _finish(conn, req)
+    conn.close()

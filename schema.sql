@@ -45,7 +45,7 @@ CREATE TABLE point_transactions (
     student_id      TEXT NOT NULL,
     amount          INTEGER NOT NULL,
     reason          TEXT NOT NULL,
-    request_id      INTEGER,
+    related_request_id  INTEGER,
     created_at      TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
     FOREIGN KEY (student_id) REFERENCES users(student_id)
 );
