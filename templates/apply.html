@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}ベッチ - 申し込み{% endblock %}
+
+{% block content %}
+<h2>{{ teacher.nickname }}さんに申し込む</h2>
+<p>{{ date }}</p>
+
+{% if slots %}
+<form method="post">
+    <input type="hidden" name="subject_id" value="{{ subject_id }}">
+    <ul class="stu-slot-list">
+        {% for slot in slots %}
+        <li>
+            <label>
+                <input type="checkbox" name="slot_ids" value="{{ slot.slot_id }}">
+                {{ slot.period }}時限
+            </label>
+        </li>
+        {% endfor %}
+    </ul>
+    <button type="submit">この時間で申し込む</button>
+</form>
+{% else %}
+<p>この日に空き枠がありません。</p>
+{% endif %}
+
+<p><a href="{{ url_for('student') }}">戻る</a></p>
+{% endblock %}

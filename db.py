@@ -145,3 +145,68 @@ def search_teachers(subject_id, date, exclude_student_id):
     """, (subject_id, date, exclude_student_id)).fetchall()
     conn.close()
     return rows
+
+def get_open_slots(teacher_id, date):
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT * FROM availabilities WHERE student_id = ? AND date = ? AND status = '空き' ORDER BY period",
+        (teacher_id, date)
+    ).fetchall()
+    conn.close()
+    return rows
+
+def create_request(student_id, teacher_id, subject_id, slot_ids):
+    conn = get_conn()
+    cur = conn.execute(
+        "INSERT INTO match_requests (student_id, teacher_id, subject_id) VALUES (?, ?, ?)",
+        (student_id, teacher_id, subject_id)
+    )
+    request_id = cur.lastrowid
+    for slot_id in slot_ids:
+        conn.execute(
+            "INSERT INTO match_request_slots (request_id, slot_id) VALUES (?, ?)",
+            (request_id, slot_id)
+        )
+    conn.commit()
+    conn.close()
+    return request_id
+
+def get_requests_for_teacher(teacher_id):
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT r.*, u.nickname, s.subject_name,
+               (SELECT GROUP_CONCAT(a.date || ' ' || a.period || '時限', ', ')
+                FROM match_request_slots ms
+                JOIN availabilities a ON a.slot_id = ms.slot_id
+                WHERE ms.request_id = r.request_id) AS slot_text
+        FROM match_requests r
+        JOIN users u ON u.student_id = r.student_id
+        JOIN subjects s ON s.subject_id = r.subject_id
+        WHERE r.teacher_id = ? AND r.status = '申請中'
+        ORDER BY r.created_at
+    """, (teacher_id,)).fetchall()
+    conn.close()
+    return rows
+
+def get_requests_for_student(student_id):
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT r.*, u.nickname, s.subject_name
+        FROM match_requests r
+        JOIN users u ON u.student_id = r.teacher_id
+        JOIN subjects s ON s.subject_id = r.subject_id
+        WHERE r.student_id = ?
+        ORDER BY r.created_at DESC
+    """, (student_id,)).fetchall()
+    conn.close()
+    return rows
+
+def get_slots_by_ids(slot_ids):
+    conn = get_conn()
+    placeholders = ",".join("?" * len(slot_ids))
+    rows = conn.execute(
+        f"SELECT * FROM availabilities WHERE slot_id IN ({placeholders})",
+        slot_ids
+    ).fetchall()
+    conn.close()
+    return rows

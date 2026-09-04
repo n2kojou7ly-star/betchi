@@ -29,11 +29,22 @@
         <span class="stu-result-name">{{ t.nickname }}</span>
         <span class="stu-result-slots">空き{{ t.slot_count }}枠</span>
         <span class="stu-result-point">{{ t.balance }}P</span>
+        <a href="{{ url_for('apply', teacher_id=t.student_id, date=date, subject_id=subject_id) }}"
+            class="stu-apply-link">申し込む</a>
     </li>
     {% endfor %}
 </ul>
 {% else %}
 <p>条件に合う先生が見つかりませんでした。</p>
 {% endif %}
+{% endif %}
+
+{% if my_requests %}
+<h3>申し込み状況</h3>
+<ul class="stu-request-list">
+    {% for r in my_requests %}
+    <li>{{ r.nickname }}さん / {{ r.subject_name }} / {{ r.status }}</li>
+    {% endfor %}
+</ul>
 {% endif %}
 {% endblock %}

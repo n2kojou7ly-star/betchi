@@ -32,7 +32,8 @@ def student():
         subjects=db.get_all_subjects(),
         results=results,
         subject_id=subject_id,
-        date=date
+        date=date,
+        my_requests=db.get_requests_for_student(student_id)
     )
 
 @app.route('/teacher', methods=['GET', 'POST'])
@@ -117,6 +118,31 @@ def exchange_item_route():
 def logout():
     session.clear()
     return redirect(url_for('login'))
+
+@app.route('/apply/<teacher_id>')
+def apply(teacher_id):
+    date = request.args.get('date')
+    subject_id = request.args.get('subject_id')
+    return render_template(
+        'apply.html',
+        teacher=db.get_user_by_id(teacher_id),
+        slots=db.get_open_slots(teacher_id, date),
+        date=date,
+        subject_id=subject_id
+    )
+
+@app.route('/apply/<teacher_id>', methods=['POST'])
+def apply_post(teacher_id):
+    slot_ids = request.form.getlist('slot_ids')
+    if not slot_ids:
+        return redirect(url_for('student'))
+    slots = db.get_slots_by_ids(slot_ids)
+    periods = sorted(s['period'] for s in slots)
+    dates = set(s['date'] for s in slots)
+    if len(dates) > 1 or periods != list(range(periods[0], periods[-1] + 1)):
+        return redirect(url_for('student'))
+    db.create_request(session['student_id'], teacher_id, request.form['subject_id'], slot_ids)
+    return redirect(url_for('student'))
 
 if __name__ == '__main__':
     app.run(debug=True)

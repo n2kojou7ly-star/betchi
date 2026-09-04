@@ -66,3 +66,50 @@ CREATE TABLE exchanges (
     FOREIGN KEY (student_id) REFERENCES users(student_id),
     FOREIGN KEY (item_id) REFERENCES items(item_id)
 );
+
+DROP TABLE IF EXISTS match_requests;
+DROP TABLE IF EXISTS match_request_slots;
+DROP TABLE IF EXISTS chat_rooms;
+DROP TABLE IF EXISTS messages;
+
+CREATE TABLE match_requests (
+    request_id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id      TEXT NOT NULL,
+    teacher_id      TEXT NOT NULL,
+    subject_id      INTEGER NOT NULL,
+    status          TEXT NOT NULL DEFAULT '申請中',
+    created_at      TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+    completed_by    TEXT,
+    waiting_since   TEXT,
+    completed_at    TEXT,
+    FOREIGN KEY (student_id) REFERENCES users(student_id),
+    FOREIGN KEY (teacher_id) REFERENCES users(student_id)
+);
+
+CREATE TABLE match_request_slots (
+    request_id      INTEGER NOT NULL,
+    slot_id         INTEGER NOT NULL,
+    PRIMARY KEY (request_id, slot_id),
+    FOREIGN KEY (request_id) REFERENCES match_requests(request_id),
+    FOREIGN KEY (slot_id) REFERENCES availabilities(slot_id)
+);
+
+CREATE TABLE chat_rooms (
+    room_id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id      TEXT NOT NULL,
+    teacher_id      TEXT NOT NULL,
+    UNIQUE (student_id, teacher_id),
+    FOREIGN KEY (student_id) REFERENCES users(student_id),
+    FOREIGN KEY (teacher_id) REFERENCES users(student_id)
+);
+
+CREATE TABLE messages (
+    message_id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    room_id         INTEGER NOT NULL,
+    sender_id       TEXT NOT NULL,
+    kind            TEXT NOT NULL DEFAULT '文字',
+    body            TEXT NOT NULL,
+    created_at      TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+    FOREIGN KEY (room_id) REFERENCES chat_rooms(room_id),
+    FOREIGN KEY (sender_id) REFERENCES users(student_id)
+);

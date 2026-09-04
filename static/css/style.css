@@ -43,6 +43,65 @@ main {
     padding: 16px;
 }
 
+.stu-search-form {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.stu-result-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.stu-result-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid #DDDDDD;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.stu-result-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.stu-result-name {
+    font-weight: bold;
+    flex-grow: 1;
+}
+
+.stu-result-slots,
+.stu-result-point {
+    font-size: 13px;
+    color: #777777;
+}
+
+.stu-apply-link {
+    background-color: var(--accent-color);
+    color: #FFFFFF;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.stu-slot-list,
+.stu-request-list {
+    list-style: none;
+    padding: 0;
+}
+
 /* ==========================================================
    ここから かとはる 担当分 
    ========================================================== */
