@@ -121,3 +121,27 @@ def exchange_item(student_id, item_id, required_point):
     )
     conn.commit()
     conn.close()
+
+def search_teachers(subject_id, date, exclude_student_id):
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT
+            u.student_id,
+            u.nickname,
+            u.icon,
+            u.profile,
+            COUNT(a.slot_id) AS slot_count,
+            COALESCE((SELECT SUM(amount) FROM point_transactions p
+                      WHERE p.student_id = u.student_id), 0) AS balance
+        FROM users u
+        JOIN teaching_subjects ts ON ts.student_id = u.student_id
+        JOIN availabilities a ON a.student_id = u.student_id
+        WHERE ts.subject_id = ?
+          AND a.date = ?
+          AND a.status = '空き'
+          AND u.student_id != ?
+        GROUP BY u.student_id
+        ORDER BY slot_count DESC
+    """, (subject_id, date, exclude_student_id)).fetchall()
+    conn.close()
+    return rows

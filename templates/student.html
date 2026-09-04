@@ -1,4 +1,39 @@
 {% extends "base.html" %}
+{% block title %}ベッチ - 生徒メイン{% endblock %}
+
 {% block content %}
-<h2>生徒メイン</h2>
+<h2>何勉強する?</h2>
+
+<form method="get" class="stu-search-form">
+    <select name="subject_id" required>
+        <option value="">教科を選択</option>
+        {% for s in subjects %}
+        <option value="{{ s.subject_id }}" {% if subject_id==s.subject_id|string %}selected{% endif %}>
+            {{ s.subject_name }}
+        </option>
+        {% endfor %}
+    </select>
+    <input type="date" name="date" value="{{ date or '' }}" required>
+    <button type="submit">検索</button>
+</form>
+
+{% if results is not none %}
+<h3>検索結果</h3>
+{% if results %}
+<ul class="stu-result-list">
+    {% for t in results %}
+    <li class="stu-result-item">
+        {% if t.icon %}
+        <img src="{{ url_for('static', filename='img/' + t.icon) }}" class="stu-result-icon">
+        {% endif %}
+        <span class="stu-result-name">{{ t.nickname }}</span>
+        <span class="stu-result-slots">空き{{ t.slot_count }}枠</span>
+        <span class="stu-result-point">{{ t.balance }}P</span>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>条件に合う先生が見つかりませんでした。</p>
+{% endif %}
+{% endif %}
 {% endblock %}

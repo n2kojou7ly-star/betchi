@@ -21,7 +21,19 @@ def role():
 
 @app.route('/student')
 def student():
-    return render_template('student.html')
+    student_id = session['student_id']
+    subject_id = request.args.get('subject_id')
+    date = request.args.get('date')
+    results = None
+    if subject_id and date:
+        results = db.search_teachers(subject_id, date, student_id)
+    return render_template(
+        'student.html',
+        subjects=db.get_all_subjects(),
+        results=results,
+        subject_id=subject_id,
+        date=date
+    )
 
 @app.route('/teacher', methods=['GET', 'POST'])
 def teacher():
@@ -67,8 +79,8 @@ def settings():
         db.update_profile(
             student_id,
             request.form['nickname'],
-            request.form['profile'],
-            request.form['icon']
+            request.form.get('profile', ''),
+            request.form.get('icon', '')
         )
         db.set_teaching_subjects(student_id, request.form.getlist('teaching_subject_ids'))
         return redirect(url_for('settings'))
