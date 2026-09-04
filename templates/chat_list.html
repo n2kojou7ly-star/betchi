@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}ベッチ - チャット{% endblock %}
+
+{% block content %}
+<h2>チャット</h2>
+{% if rooms %}
+<ul class="chat-room-list">
+    {% for r in rooms %}
+    <li class="chat-room-item">
+        <a href="{{ url_for('chat', room_id=r.room_id) }}">
+            {% if r.partner_icon %}
+            <img src="{{ url_for('static', filename='img/' + r.partner_icon) }}" class="chat-room-icon">
+            {% endif %}
+            {{ r.partner_name }}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>まだチャットがありません。申し込みが承認されると始められます。</p>
+{% endif %}
+{% endblock %}

@@ -255,3 +255,50 @@ def reject_request(request_id, teacher_id):
     )
     conn.commit()
     conn.close()
+
+def get_chat_rooms(student_id):
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT r.room_id,
+               CASE WHEN r.student_id = ? THEN r.teacher_id ELSE r.student_id END AS partner_id,
+               u.nickname AS partner_name,
+               u.icon AS partner_icon
+        FROM chat_rooms r
+        JOIN users u ON u.student_id =
+            CASE WHEN r.student_id = ? THEN r.teacher_id ELSE r.student_id END
+        WHERE r.student_id = ? OR r.teacher_id = ?
+    """, (student_id, student_id, student_id, student_id)).fetchall()
+    conn.close()
+    return rows
+
+def get_room(room_id, student_id):
+    conn = get_conn()
+    row = conn.execute("""
+        SELECT r.*,
+               CASE WHEN r.student_id = ? THEN r.teacher_id ELSE r.student_id END AS partner_id
+        FROM chat_rooms r
+        WHERE r.room_id = ? AND (r.student_id = ? OR r.teacher_id = ?)
+    """, (student_id, room_id, student_id, student_id)).fetchone()
+    conn.close()
+    return row
+
+def get_messages(room_id):
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT m.*, u.nickname, u.icon
+        FROM messages m
+        JOIN users u ON u.student_id = m.sender_id
+        WHERE m.room_id = ?
+        ORDER BY m.message_id
+    """, (room_id,)).fetchall()
+    conn.close()
+    return rows
+
+def add_message(room_id, sender_id, body):
+    conn = get_conn()
+    conn.execute(
+        "INSERT INTO messages (room_id, sender_id, body) VALUES (?, ?, ?)",
+        (room_id, sender_id, body)
+    )
+    conn.commit()
+    conn.close()

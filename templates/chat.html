@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}ベッチ - {{ partner.nickname }}{% endblock %}
+
+{% block content %}
+<h2>{{ partner.nickname }}さん</h2>
+
+<div class="chat-messages">
+    {% for m in messages %}
+    <div class="chat-message {% if m.sender_id == me %}chat-message-mine{% endif %}">
+        <div class="chat-bubble">{{ m.body }}</div>
+        <div class="chat-time">{{ m.created_at[11:16] }}</div>
+    </div>
+    {% endfor %}
+</div>
+
+<form method="post" class="chat-form">
+    <input type="text" name="body" placeholder="メッセージ" autocomplete="off" required>
+    <button type="submit">送信</button>
+</form>
+
+<p><a href="{{ url_for('chat_list') }}">戻る</a></p>
+{% endblock %}

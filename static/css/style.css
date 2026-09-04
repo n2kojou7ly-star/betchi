@@ -126,6 +126,79 @@ main {
     flex-shrink: 0;
 }
 
+.chat-room-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.chat-room-item a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid #DDDDDD;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.chat-room-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+    min-height: 200px;
+}
+
+.chat-message {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.chat-message-mine {
+    flex-direction: row-reverse;
+}
+
+.chat-bubble {
+    background-color: #EEEEEE;
+    padding: 8px 12px;
+    border-radius: 12px;
+    max-width: 70%;
+}
+
+.chat-message-mine .chat-bubble {
+    background-color: var(--accent-color);
+    color: #FFFFFF;
+}
+
+.chat-time {
+    font-size: 11px;
+    color: #999999;
+}
+
+.chat-form {
+    display: flex;
+    gap: 8px;
+}
+
+.chat-form input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #DDDDDD;
+    border-radius: 6px;
+}
+
 /* ==========================================================
    ここから かとはる 担当分 
    ========================================================== */

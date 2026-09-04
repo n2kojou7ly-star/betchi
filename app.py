@@ -149,5 +149,28 @@ def apply_post(teacher_id):
     db.create_request(session['student_id'], teacher_id, request.form['subject_id'], slot_ids)
     return redirect(url_for('student'))
 
+@app.route('/chat')
+def chat_list():
+    return render_template('chat_list.html', rooms=db.get_chat_rooms(session['student_id']))
+
+@app.route('/chat/<int:room_id>', methods=['GET', 'POST'])
+def chat(room_id):
+    student_id = session['student_id']
+    room = db.get_room(room_id, student_id)
+    if room is None:
+        return redirect(url_for('chat_list'))
+    if request.method == 'POST':
+        body = request.form.get('body', '').strip()
+        if body:
+            db.add_message(room_id, student_id, body)
+        return redirect(url_for('chat', room_id=room_id))
+    return render_template(
+        'chat.html',
+        room=room,
+        partner=db.get_user_by_id(room['partner_id']),
+        messages=db.get_messages(room_id),
+        me=student_id
+    )
+
 if __name__ == '__main__':
     app.run(debug=True)
