@@ -102,6 +102,30 @@ main {
     padding: 0;
 }
 
+.tea-request-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tea-request-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border: 1px solid #DDDDDD;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.tea-request-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
 /* ==========================================================
    ここから かとはる 担当分 
    ========================================================== */

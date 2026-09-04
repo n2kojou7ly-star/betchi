@@ -210,3 +210,48 @@ def get_slots_by_ids(slot_ids):
     ).fetchall()
     conn.close()
     return rows
+
+def approve_request(request_id, teacher_id):
+    conn = get_conn()
+    req = conn.execute(
+        "SELECT * FROM match_requests WHERE request_id = ? AND teacher_id = ? AND status = '申請中'",
+        (request_id, teacher_id)
+    ).fetchone()
+    if req is None:
+        conn.close()
+        return
+    slot_rows = conn.execute(
+        "SELECT slot_id FROM match_request_slots WHERE request_id = ?", (request_id,)
+    ).fetchall()
+    slot_ids = [r["slot_id"] for r in slot_rows]
+    placeholders = ",".join("?" * len(slot_ids))
+    conn.execute(
+        f"UPDATE availabilities SET status = '予約済' WHERE slot_id IN ({placeholders})",
+        slot_ids
+    )
+    conn.execute(
+        f"""UPDATE match_requests SET status = '却下'
+            WHERE status = '申請中' AND request_id != ?
+              AND request_id IN (
+                SELECT request_id FROM match_request_slots WHERE slot_id IN ({placeholders})
+              )""",
+        [request_id] + slot_ids
+    )
+    conn.execute(
+        "UPDATE match_requests SET status = '承認' WHERE request_id = ?", (request_id,)
+    )
+    conn.execute(
+        "INSERT OR IGNORE INTO chat_rooms (student_id, teacher_id) VALUES (?, ?)",
+        (req["student_id"], teacher_id)
+    )
+    conn.commit()
+    conn.close()
+
+def reject_request(request_id, teacher_id):
+    conn = get_conn()
+    conn.execute(
+        "UPDATE match_requests SET status = '却下' WHERE request_id = ? AND teacher_id = ? AND status = '申請中'",
+        (request_id, teacher_id)
+    )
+    conn.commit()
+    conn.close()

@@ -40,16 +40,21 @@ def student():
 def teacher():
     student_id = session['student_id']
     if request.method == 'POST':
-        if request.form.get('action') == 'delete':
+        action = request.form.get('action')
+        if action == 'delete':
             db.delete_availability(request.form['slot_id'], student_id)
+        elif action == 'approve':
+            db.approve_request(request.form['request_id'], student_id)
+        elif action == 'reject':
+            db.reject_request(request.form['request_id'], student_id)
         else:
-            db.add_availability(
-                student_id,
-                request.form['date'],
-                int(request.form['period'])
-            )
+            db.add_availability(student_id, request.form['date'], int(request.form['period']))
         return redirect(url_for('teacher'))
-    return render_template('teacher.html', slots=db.get_availabilities(student_id))
+    return render_template(
+        'teacher.html',
+        slots=db.get_availabilities(student_id),
+        requests=db.get_requests_for_teacher(student_id)
+    )
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

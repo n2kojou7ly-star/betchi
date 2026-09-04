@@ -32,4 +32,33 @@
 {% else %}
 <p>まだ登録がありません。</p>
 {% endif %}
+
+<h3>申し込みが来ています</h3>
+{% if requests %}
+<ul class="tea-request-list">
+    {% for r in requests %}
+    <li class="tea-request-item">
+        <div>
+            <strong>{{ r.nickname }}</strong>さん / {{ r.subject_name }}<br>
+            {{ r.slot_text }}
+        </div>
+        <div class="tea-request-actions">
+            <form method="post" style="display:inline">
+                <input type="hidden" name="action" value="approve">
+                <input type="hidden" name="request_id" value="{{ r.request_id }}">
+                <button type="submit">承認</button>
+            </form>
+            <form method="post" style="display:inline">
+                <input type="hidden" name="action" value="reject">
+                <input type="hidden" name="request_id" value="{{ r.request_id }}">
+                <button type="submit">却下</button>
+            </form>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>今は申し込みがありません。</p>
+{% endif %}
+
 {% endblock %}
