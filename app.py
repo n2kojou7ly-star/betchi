@@ -72,7 +72,7 @@ def login():
 
 @app.before_request
 def require_login():
-    allowed = ('index', 'login', 'signup', 'static')
+    allowed = ('index', 'login', 'signup', 'static', 'dev')
     if request.endpoint not in allowed and 'student_id' not in session:
         return redirect(url_for('login'))
 
@@ -135,7 +135,8 @@ def apply(teacher_id):
         teacher=db.get_user_by_id(teacher_id),
         slots=db.get_open_slots(teacher_id, date),
         date=date,
-        subject_id=subject_id
+        subject_id=subject_id,
+        busy=db.get_busy_periods(session['student_id'], date)
     )
 
 @app.route('/apply/<teacher_id>', methods=['POST'])
@@ -178,6 +179,25 @@ def chat(room_id):
 def complete():
     db.press_complete(request.form['request_id'], session['student_id'])
     return redirect(request.form.get('back', url_for('student')))
+
+@app.route('/dev')
+def dev():
+    stats, users, requests_ = db.get_dev_stats()
+    return render_template('dev.html', stats=stats, users=users, requests=requests_)
+
+@app.route('/dev/action', methods=['POST'])
+def dev_action():
+    action = request.form.get('action')
+    if action == 'reset':
+        db.dev_reset_matching()
+    elif action == 'points':
+        db.dev_add_points(request.form['student_id'], 300)
+    elif action == 'login':
+        session['student_id'] = request.form['student_id']
+        return redirect(url_for('role'))
+    elif action == 'logout':
+        session.clear()
+    return redirect(url_for('dev'))
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}ベッチ - 開発用{% endblock %}
+
+{% block content %}
+<div class="dev-page">
+
+    <div class="dev-warning">
+        開発用ページです。<strong>デモ・発表前に必ず削除してください。</strong>
+        パスワードなしでログインできる裏口が含まれています。
+    </div>
+
+    <h2>アカウント</h2>
+    <p class="dev-note">パスワードは全員 <code>test1234</code>。「入る」はパスワードなしで切り替わります。</p>
+    <table class="dev-table">
+        <tr>
+            <th>学番</th>
+            <th>名前</th>
+            <th>残高</th>
+            <th>教科</th>
+            <th>空き枠</th>
+            <th></th>
+        </tr>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.student_id }}</td>
+            <td>{{ u.nickname }}</td>
+            <td>{{ u.balance }}P</td>
+            <td>{{ u.subject_count }}</td>
+            <td>{{ u.open_slots }}</td>
+            <td class="dev-row-actions">
+                <form method="post" action="{{ url_for('dev_action') }}">
+                    <input type="hidden" name="action" value="login">
+                    <input type="hidden" name="student_id" value="{{ u.student_id }}">
+                    <button type="submit">入る</button>
+                </form>
+                <form method="post" action="{{ url_for('dev_action') }}">
+                    <input type="hidden" name="action" value="points">
+                    <input type="hidden" name="student_id" value="{{ u.student_id }}">
+                    <button type="submit">+300P</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>ページ一覧</h2>
+    <ul class="dev-link-list">
+        <li><a href="{{ url_for('index') }}">/ トップ</a></li>
+        <li><a href="{{ url_for('login') }}">/login ログイン</a></li>
+        <li><a href="{{ url_for('signup') }}">/signup アカウント作成</a></li>
+        <li><a href="{{ url_for('role') }}">/role 立場選択</a></li>
+        <li><a href="{{ url_for('student') }}">/student 生徒メイン</a></li>
+        <li><a href="{{ url_for('teacher') }}">/teacher 教師メイン</a></li>
+        <li><a href="{{ url_for('chat_list') }}">/chat チャット一覧</a></li>
+        <li><a href="{{ url_for('settings') }}">/settings 設定</a></li>
+        <li><a href="{{ url_for('points') }}">/points ポイント</a></li>
+        <li><a href="{{ url_for('logout') }}">/logout ログアウト</a></li>
+    </ul>
+    <p class="dev-note">
+        /apply/&lt;先生の学番&gt; と /chat/&lt;ルームID&gt; は、それぞれ検索結果とチャット一覧から遷移します。
+    </p>
+
+    <h2>申し込みの状況</h2>
+    {% if requests %}
+    <table class="dev-table">
+        <tr>
+            <th>ID</th>
+            <th>生徒</th>
+            <th>先生</th>
+            <th>教科</th>
+            <th>状態</th>
+        </tr>
+        {% for r in requests %}
+        <tr>
+            <td>{{ r.request_id }}</td>
+            <td>{{ r.student_name }}</td>
+            <td>{{ r.teacher_name }}</td>
+            <td>{{ r.subject_name }}</td>
+            <td>{{ r.status }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>申し込みはありません。</p>
+    {% endif %}
+
+    <h2>テーブルの件数</h2>
+    <table class="dev-table">
+        {% for name, count in stats.items() %}
+        <tr>
+            <td>{{ name }}</td>
+            <td>{{ count }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>操作</h2>
+    <div class="dev-row-actions">
+        <form method="post" action="{{ url_for('dev_action') }}">
+            <input type="hidden" name="action" value="reset">
+            <button type="submit">申し込み・チャットをリセット</button>
+        </form>
+        <form method="post" action="{{ url_for('dev_action') }}">
+            <input type="hidden" name="action" value="logout">
+            <button type="submit">ログアウト</button>
+        </form>
+    </div>
+    <p class="dev-note">
+        リセットは申し込み・チャット・メッセージを消し、空き枠の状態を「空き」に戻します。
+        アカウント・教科・空き枠・ポイントは残ります。
+    </p>
+
+    <h2>よく使うコマンド</h2>
+    <pre class="dev-code">DBを作り直す（テーブルを変えたら3人全員が実行）
+sqlite3 betchi.db &lt; schema.sql &amp;&amp; sqlite3 betchi.db &lt; seed.sql &amp;&amp; python3 create_users.py
+
+起動
+python3 app.py
+
+2アカウントを同時に試すときは、片方をシークレットウィンドウで開く
+表示が変わらないときは command + shift + R（強制再読み込み）</pre>
+
+</div>
+{% endblock %}

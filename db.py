@@ -244,6 +244,23 @@ def approve_request(request_id, teacher_id):
         "INSERT OR IGNORE INTO chat_rooms (student_id, teacher_id) VALUES (?, ?)",
         (req["student_id"], teacher_id)
     )
+    conn.execute("""
+        UPDATE match_requests SET status = '却下'
+        WHERE status = '申請中'
+          AND student_id = ?
+          AND request_id != ?
+          AND request_id IN (
+            SELECT ms.request_id
+            FROM match_request_slots ms
+            JOIN availabilities a ON a.slot_id = ms.slot_id
+            WHERE (a.date, a.period) IN (
+                SELECT a2.date, a2.period
+                FROM match_request_slots ms2
+                JOIN availabilities a2 ON a2.slot_id = ms2.slot_id
+                WHERE ms2.request_id = ?
+            )
+          )
+    """, (req["student_id"], request_id, request_id))
     conn.commit()
     conn.close()
 
@@ -374,4 +391,68 @@ def auto_complete_expired():
     """).fetchall()
     for req in rows:
         _finish(conn, req)
+    conn.close()
+
+def get_busy_periods(student_id, date):
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT a.period, u.nickname, s.subject_name, r.status
+        FROM match_requests r
+        JOIN match_request_slots ms ON ms.request_id = r.request_id
+        JOIN availabilities a ON a.slot_id = ms.slot_id
+        JOIN users u ON u.student_id = r.teacher_id
+        JOIN subjects s ON s.subject_id = r.subject_id
+        WHERE r.student_id = ? AND a.date = ?
+          AND r.status IN ('申請中', '承認', '完了待ち')
+        ORDER BY a.period
+    """, (student_id, date)).fetchall()
+    conn.close()
+    return rows
+
+def get_dev_stats():
+    conn = get_conn()
+    stats = {}
+    for name in ("users", "teaching_subjects", "availabilities",
+                 "match_requests", "chat_rooms", "messages",
+                 "point_transactions", "exchanges"):
+        stats[name] = conn.execute(f"SELECT COUNT(*) AS c FROM {name}").fetchone()["c"]
+    users = conn.execute("""
+        SELECT u.student_id, u.nickname,
+               COALESCE((SELECT SUM(amount) FROM point_transactions p
+                         WHERE p.student_id = u.student_id), 0) AS balance,
+               (SELECT COUNT(*) FROM teaching_subjects t
+                WHERE t.student_id = u.student_id) AS subject_count,
+               (SELECT COUNT(*) FROM availabilities a
+                WHERE a.student_id = u.student_id AND a.status = '空き') AS open_slots
+        FROM users u ORDER BY u.student_id
+    """).fetchall()
+    requests = conn.execute("""
+        SELECT r.request_id, r.status, su.nickname AS student_name,
+               tu.nickname AS teacher_name, s.subject_name
+        FROM match_requests r
+        JOIN users su ON su.student_id = r.student_id
+        JOIN users tu ON tu.student_id = r.teacher_id
+        JOIN subjects s ON s.subject_id = r.subject_id
+        ORDER BY r.request_id DESC
+    """).fetchall()
+    conn.close()
+    return stats, users, requests
+
+def dev_reset_matching():
+    conn = get_conn()
+    conn.execute("DELETE FROM match_request_slots")
+    conn.execute("DELETE FROM match_requests")
+    conn.execute("DELETE FROM messages")
+    conn.execute("DELETE FROM chat_rooms")
+    conn.execute("UPDATE availabilities SET status = '空き'")
+    conn.commit()
+    conn.close()
+
+def dev_add_points(student_id, amount):
+    conn = get_conn()
+    conn.execute(
+        "INSERT INTO point_transactions (student_id, amount, reason) VALUES (?, ?, 'テスト')",
+        (student_id, amount)
+    )
+    conn.commit()
     conn.close()

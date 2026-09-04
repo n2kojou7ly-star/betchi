@@ -6,6 +6,20 @@
 <p>{{ date }}</p>
 
 {% if slots %}
+
+<p class="stu-hint">連続した時限のみ選べます。先に承認された申し込みが優先され、同じ時間の他の申し込みは自動で取り消されます。</p>
+
+{% if busy %}
+<div class="stu-busy-box">
+    <strong>この日にすでに入っている予定</strong>
+    <ul>
+        {% for b in busy %}
+        <li>{{ b.period }}時限 / {{ b.nickname }}さん / {{ b.subject_name }}（{{ b.status }}）</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
 <form method="post">
     <input type="hidden" name="subject_id" value="{{ subject_id }}">
     <ul class="stu-slot-list">
