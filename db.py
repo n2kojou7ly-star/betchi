@@ -1,4 +1,5 @@
 import sqlite3
+from werkzeug.security import generate_password_hash
 
 DB_PATH = "betchi.db"
 
@@ -456,3 +457,30 @@ def dev_add_points(student_id, amount):
     )
     conn.commit()
     conn.close()
+
+def create_user(student_id, password, nickname, profile, icon):
+    conn = get_conn()
+    try:
+        conn.execute(
+            "INSERT INTO users (student_id, password_hash, nickname, profile, icon) VALUES (?, ?, ?, ?, ?)",
+            (student_id, generate_password_hash(password, method="pbkdf2"),
+             nickname, profile, icon)
+        )
+        conn.commit()
+    except sqlite3.IntegrityError:
+        conn.close()
+        return False
+    conn.close()
+    return True
+
+def get_messages_after(room_id, after_id):
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT m.*, u.nickname
+        FROM messages m
+        JOIN users u ON u.student_id = m.sender_id
+        WHERE m.room_id = ? AND m.message_id > ?
+        ORDER BY m.message_id
+    """, (room_id, after_id)).fetchall()
+    conn.close()
+    return rows
