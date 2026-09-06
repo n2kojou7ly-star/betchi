@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, session, request
 from werkzeug.security import check_password_hash
 import db
+from flask import jsonify
 
 app = Flask(__name__)
 ICONS = ['icon1.png', 'icon2.png', 'icon3.png', 'icon4.png', 'icon5.png']
@@ -76,9 +77,24 @@ def require_login():
     if request.endpoint not in allowed and 'student_id' not in session:
         return redirect(url_for('login'))
 
-@app.route('/signup')
+@app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    return render_template('signup.html')
+    if request.method == 'POST':
+        student_id = request.form['student_id'].strip()
+        password = request.form['password']
+        nickname = request.form['nickname'].strip()
+        if not student_id or not password or not nickname:
+            return render_template('signup.html', icons=ICONS, error='未入力の項目があります')
+        ok = db.create_user(
+            student_id, password, nickname,
+            request.form.get('profile', ''),
+            request.form.get('icon', '')
+        )
+        if not ok:
+            return render_template('signup.html', icons=ICONS, error='その学番はすでに登録されています')
+        session['student_id'] = student_id
+        return redirect(url_for('role'))
+    return render_template('signup.html', icons=ICONS)
 
 @app.route('/settings', methods=['GET', 'POST'])
 def settings():
@@ -198,6 +214,24 @@ def dev_action():
     elif action == 'logout':
         session.clear()
     return redirect(url_for('dev'))
+
+@app.route('/chat/<int:room_id>/new')
+def chat_new(room_id):
+    student_id = session['student_id']
+    if db.get_room(room_id, student_id) is None:
+        return jsonify([])
+    after_id = request.args.get('after', 0, type=int)
+    rows = db.get_messages_after(room_id, after_id)
+    return jsonify([
+        {
+            'message_id': r['message_id'],
+            'sender_id': r['sender_id'],
+            'body': r['body'],
+            'created_at': r['created_at'],
+            'mine': r['sender_id'] == student_id
+        }
+        for r in rows
+    ])
 
 if __name__ == '__main__':
     app.run(debug=True)

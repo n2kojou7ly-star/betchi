@@ -19,4 +19,39 @@
 </form>
 
 <p><a href="{{ url_for('chat_list') }}">戻る</a></p>
+
+<script>
+    var roomId = {{ room.room_id }};
+    var lastId = {{ messages[-1].message_id if messages else 0 }};
+    var box = document.querySelector('.chat-messages');
+
+    function addMessage(m) {
+        var wrap = document.createElement('div');
+        wrap.className = 'chat-message' + (m.mine ? ' chat-message-mine' : '');
+        var bubble = document.createElement('div');
+        bubble.className = 'chat-bubble';
+        bubble.textContent = m.body;
+        var time = document.createElement('div');
+        time.className = 'chat-time';
+        time.textContent = m.created_at.slice(11, 16);
+        wrap.appendChild(bubble);
+        wrap.appendChild(time);
+        box.appendChild(wrap);
+    }
+
+    setInterval(function () {
+        fetch('/chat/' + roomId + '/new?after=' + lastId)
+            .then(function (res) { return res.json(); })
+            .then(function (list) {
+                list.forEach(function (m) {
+                    addMessage(m);
+                    lastId = m.message_id;
+                });
+                if (list.length) {
+                    window.scrollTo(0, document.body.scrollHeight);
+                }
+            });
+    }, 3000);
+</script>
+
 {% endblock %}
