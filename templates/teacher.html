@@ -62,6 +62,23 @@
 <p>今は申し込みがありません。</p>
 {% endif %}
 
+{% if upcoming %}
+<h3>これからの授業</h3>
+<ul class="stu-request-list">
+    {% for u in upcoming %}
+    <li class="tea-request-item">
+        <div>
+            <strong>{{ u.partner_name }}</strong>さん / {{ u.subject_name }}<br>
+            {{ u.slot_text }}
+        </div>
+        {% if u.room_id %}
+        <a href="{{ url_for('chat', room_id=u.room_id) }}" class="stu-apply-link">チャット</a>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
 {% if pending %}
 <h3>授業の完了確認</h3>
 <ul class="stu-request-list">

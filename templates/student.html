@@ -2,7 +2,7 @@
 {% block title %}ベッチ - 生徒メイン{% endblock %}
 
 {% block content %}
-<h2>何勉強する?</h2>
+<h2>何を勉強しますか？</h2>
 
 <form method="get" class="stu-search-form">
     <select name="subject_id" id="stu-subject-select" required>
@@ -47,15 +47,20 @@
     subjectSelect.addEventListener('change', filterTopics);
     filterTopics();
 </script>
+
 {% if results is not none %}
 {% if results %}
 
 <div class="swipe-area" id="swipe-area">
     <div class="swipe-stack" id="swipe-stack">
         {% for t in results %}
-        <div class="swipe-card" data-index="{{ loop.index0 }}">
+        <div class="swipe-card" data-student="{{ t.student_id }}">
             <div class="swipe-card-inner">
                 <div class="avatar-wrap swipe-avatar">
+                    {% if t.effect_item_id %}
+                    <img src="{{ url_for('static', filename='img/effects/' + t.effect_item_id + '.png') }}"
+                        class="avatar-effect">
+                    {% endif %}
                     {% if t.icon %}
                     <img src="{{ url_for('static', filename='img/' + t.icon) }}" class="avatar-img">
                     {% endif %}
@@ -83,34 +88,50 @@
                     <span>空き {{ t.slot_count }} 枠</span>
                     <span>{{ t.balance }} P</span>
                 </div>
-
-                <a href="{{ url_for('apply', teacher_id=t.student_id, date=date, subject_id=subject_id) }}"
-                    class="swipe-apply">この先生に申し込む</a>
             </div>
-            <div class="swipe-badge swipe-badge-like">気になる</div>
+            <div class="swipe-badge swipe-badge-like">ライク</div>
             <div class="swipe-badge swipe-badge-nope">スキップ</div>
+            <div class="swipe-badge swipe-badge-match">マッチ</div>
         </div>
         {% endfor %}
     </div>
 
     <div class="swipe-buttons">
-        <button type="button" class="swipe-btn swipe-btn-nope" id="swipe-nope">✕</button>
-        <span class="swipe-counter" id="swipe-counter"></span>
-        <button type="button" class="swipe-btn swipe-btn-like" id="swipe-like">♡</button>
+        <button type="button" class="swipe-btn swipe-btn-back" id="swipe-back" title="ひとつ戻す">↩</button>
+        <button type="button" class="swipe-btn swipe-btn-nope" id="swipe-nope" title="スキップ">✕</button>
+        <button type="button" class="swipe-btn swipe-btn-match" id="swipe-match" title="マッチ">★</button>
+        <button type="button" class="swipe-btn swipe-btn-like" id="swipe-like" title="ライク">♡</button>
     </div>
-    <p class="stu-hint">カードを左右にドラッグするか、下のボタンで送れます。</p>
+    <div class="swipe-counter" id="swipe-counter"></div>
+    <p class="stu-hint">上=マッチ / 右=ライク / 左=スキップ。ドラッグでもボタンでも操作できます。</p>
 </div>
 
 <div class="swipe-done" id="swipe-done" hidden>
-    <p>全員を見終わりました。</p>
-    <button type="button" class="swipe-again" id="swipe-again">もう一度スワイプする</button>
+    <h3>全員を見終わりました</h3>
+
+    <div id="swipe-match-section" hidden>
+        <h4 class="swipe-result-title">マッチした先生</h4>
+        <ul class="stu-result-list" id="swipe-match-list"></ul>
+    </div>
+
+    <div id="swipe-like-section" hidden>
+        <h4 class="swipe-result-title">ライクした先生</h4>
+        <ul class="stu-result-list" id="swipe-like-list"></ul>
+    </div>
+
+    <p id="swipe-empty" hidden>気になる先生がいませんでした。</p>
+
+    <button type="button" class="swipe-again" id="swipe-again">最初からスワイプする</button>
 </div>
 
-<h3 class="swipe-list-title">検索結果の一覧</h3>
-<ul class="stu-result-list" id="swipe-list" hidden>
+<template id="swipe-result-template">
     {% for t in results %}
-    <li class="stu-result-item">
+    <li class="stu-result-item" data-student="{{ t.student_id }}">
         <div class="avatar-wrap">
+            {% if t.effect_item_id %}
+            <img src="{{ url_for('static', filename='img/effects/' + t.effect_item_id + '.png') }}"
+                class="avatar-effect">
+            {% endif %}
             {% if t.icon %}
             <img src="{{ url_for('static', filename='img/' + t.icon) }}" class="avatar-img">
             {% endif %}
@@ -129,49 +150,72 @@
             {% endif %}
         </div>
         <span class="stu-result-slots">空き{{ t.slot_count }}枠</span>
-        <span class="stu-result-point">{{ t.balance }}P</span>
         <a href="{{ url_for('apply', teacher_id=t.student_id, date=date, subject_id=subject_id) }}"
             class="stu-apply-link">申し込む</a>
     </li>
     {% endfor %}
-</ul>
+</template>
 
 <script>
     (function () {
-        var cards = Array.prototype.slice.call(document.querySelectorAll('.swipe-card')).reverse();
+        var cards = Array.prototype.slice.call(document.querySelectorAll('.swipe-card'));
         var area = document.getElementById('swipe-area');
         var done = document.getElementById('swipe-done');
-        var list = document.getElementById('swipe-list');
-        var listTitle = document.querySelector('.swipe-list-title');
         var counter = document.getElementById('swipe-counter');
+        var template = document.getElementById('swipe-result-template');
         var total = cards.length;
         var index = 0;
+        var history = [];
 
-        listTitle.hidden = true;
+        cards.forEach(function (card, i) {
+            card.style.zIndex = total - i;
+        });
 
         function current() {
-            return index < total ? cards[total - 1 - index] : null;
+            return index < total ? cards[index] : null;
         }
 
         function updateCounter() {
             counter.textContent = Math.min(index + 1, total) + ' / ' + total;
+            document.getElementById('swipe-back').disabled = (history.length === 0);
         }
 
-        cards.forEach(function (card, i) {
-            card.style.zIndex = i + 1;
-        });
+        function buildList(listId, sectionId, kind) {
+            var list = document.getElementById(listId);
+            var section = document.getElementById(sectionId);
+            list.innerHTML = '';
+            var picked = history.filter(function (h) { return h.kind === kind; });
+            picked.forEach(function (h) {
+                var src = template.content.querySelector(
+                    'li[data-student="' + h.studentId + '"]');
+                if (src) list.appendChild(src.cloneNode(true));
+            });
+            section.hidden = (picked.length === 0);
+            return picked.length;
+        }
 
         function finish() {
             area.hidden = true;
             done.hidden = false;
-            listTitle.hidden = false;
-            list.hidden = false;
+            var m = buildList('swipe-match-list', 'swipe-match-section', 'match');
+            var l = buildList('swipe-like-list', 'swipe-like-section', 'like');
+            document.getElementById('swipe-empty').hidden = (m + l > 0);
         }
 
-        function send(card, dir) {
+        function send(card, kind) {
+            var moves = {
+                like: 'translateX(600px) rotate(25deg)',
+                nope: 'translateX(-600px) rotate(-25deg)',
+                match: 'translateY(-700px)'
+            };
             card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-            card.style.transform = 'translateX(' + (dir * 600) + 'px) rotate(' + (dir * 25) + 'deg)';
+            card.style.transform = moves[kind];
             card.style.opacity = '0';
+            history.push({
+                kind: kind,
+                card: card,
+                studentId: card.dataset.student
+            });
             setTimeout(function () {
                 card.style.display = 'none';
                 index++;
@@ -180,14 +224,30 @@
             }, 300);
         }
 
+        function undo() {
+            if (!history.length) return;
+            var last = history.pop();
+            index--;
+            var card = last.card;
+            card.style.display = '';
+            card.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+            card.style.transform = '';
+            card.style.opacity = '';
+            area.hidden = false;
+            done.hidden = true;
+            updateCounter();
+        }
+
         document.getElementById('swipe-like').addEventListener('click', function () {
-            var c = current();
-            if (c) send(c, 1);
+            var c = current(); if (c) send(c, 'like');
         });
         document.getElementById('swipe-nope').addEventListener('click', function () {
-            var c = current();
-            if (c) send(c, -1);
+            var c = current(); if (c) send(c, 'nope');
         });
+        document.getElementById('swipe-match').addEventListener('click', function () {
+            var c = current(); if (c) send(c, 'match');
+        });
+        document.getElementById('swipe-back').addEventListener('click', undo);
 
         document.getElementById('swipe-again').addEventListener('click', function () {
             cards.forEach(function (c) {
@@ -197,21 +257,18 @@
                 c.style.opacity = '';
             });
             index = 0;
-            updateCounter();
+            history = [];
             area.hidden = false;
             done.hidden = true;
-            listTitle.hidden = true;
-            list.hidden = true;
+            updateCounter();
         });
 
         cards.forEach(function (card) {
-            var startX = 0, startY = 0, moved = false, dragging = false;
+            var startX = 0, startY = 0, dragging = false;
 
             function onDown(e) {
                 if (card !== current()) return;
-                if (e.target.closest('.swipe-apply')) return;
                 dragging = true;
-                moved = false;
                 startX = (e.touches ? e.touches[0].clientX : e.clientX);
                 startY = (e.touches ? e.touches[0].clientY : e.clientY);
                 card.style.transition = '';
@@ -221,19 +278,24 @@
                 if (!dragging) return;
                 var x = (e.touches ? e.touches[0].clientX : e.clientX) - startX;
                 var y = (e.touches ? e.touches[0].clientY : e.clientY) - startY;
-                if (Math.abs(x) > 5) moved = true;
-                card.style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + (x / 20) + 'deg)';
-                card.classList.toggle('swipe-showing-like', x > 60);
-                card.classList.toggle('swipe-showing-nope', x < -60);
+                card.style.transform =
+                    'translate(' + x + 'px,' + y + 'px) rotate(' + (x / 20) + 'deg)';
+                var up = (y < -60 && Math.abs(y) > Math.abs(x));
+                card.classList.toggle('swipe-showing-match', up);
+                card.classList.toggle('swipe-showing-like', !up && x > 60);
+                card.classList.toggle('swipe-showing-nope', !up && x < -60);
             }
 
             function onUp(e) {
                 if (!dragging) return;
                 dragging = false;
                 var x = (e.changedTouches ? e.changedTouches[0].clientX : e.clientX) - startX;
-                card.classList.remove('swipe-showing-like', 'swipe-showing-nope');
-                if (Math.abs(x) > 100) {
-                    send(card, x > 0 ? 1 : -1);
+                var y = (e.changedTouches ? e.changedTouches[0].clientY : e.clientY) - startY;
+                card.classList.remove('swipe-showing-like', 'swipe-showing-nope', 'swipe-showing-match');
+                if (y < -100 && Math.abs(y) > Math.abs(x)) {
+                    send(card, 'match');
+                } else if (Math.abs(x) > 100) {
+                    send(card, x > 0 ? 'like' : 'nope');
                 } else {
                     card.style.transition = 'transform 0.2s ease';
                     card.style.transform = '';
@@ -263,6 +325,23 @@
 <ul class="stu-request-list">
     {% for r in my_requests %}
     <li>{{ r.nickname }}さん / {{ r.subject_name }} / {{ r.status }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if upcoming %}
+<h3>これからの授業</h3>
+<ul class="stu-request-list">
+    {% for u in upcoming %}
+    <li class="tea-request-item">
+        <div>
+            <strong>{{ u.partner_name }}</strong>さん / {{ u.subject_name }}<br>
+            {{ u.slot_text }}
+        </div>
+        {% if u.room_id %}
+        <a href="{{ url_for('chat', room_id=u.room_id) }}" class="stu-apply-link">チャット</a>
+        {% endif %}
+    </li>
     {% endfor %}
 </ul>
 {% endif %}

@@ -2,7 +2,18 @@
 {% block title %}ベッチ - {{ partner.nickname }}{% endblock %}
 
 {% block content %}
-<h2>{{ partner.nickname }}さん</h2>
+<div class="chat-header">
+    <div class="avatar-wrap avatar-wrap-sm">
+        {% if partner.icon %}
+        <img src="{{ url_for('static', filename='img/' + partner.icon) }}" class="avatar-img">
+        {% endif %}
+        {% if partner.icon_frame_item_id %}
+        <img src="{{ url_for('static', filename='img/frames/' + partner.icon_frame_item_id + '.png') }}"
+            class="avatar-frame">
+        {% endif %}
+    </div>
+    <span class="chat-header-name">{{ partner.nickname }}</span>
+</div>
 
 <div class="chat-messages">
     {% for m in messages %}

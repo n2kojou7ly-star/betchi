@@ -132,6 +132,7 @@ def search_teachers(subject_id, date, exclude_student_id, topic_id=None):
             u.icon,
             u.profile,
             u.icon_frame_item_id,
+            u.effect_item_id,
             (SELECT item_name FROM items WHERE item_id = u.catchcopy_item_id) AS catchcopy,
             (SELECT GROUP_CONCAT(st.topic_name, '・')
              FROM teaching_topics tt
@@ -289,7 +290,8 @@ def get_chat_rooms(student_id):
                u.student_id AS partner_id,
                u.nickname AS partner_name,
                u.icon AS partner_icon,
-               u.icon_frame_item_id AS partner_frame
+               u.icon_frame_item_id AS partner_frame,
+               u.effect_item_id AS partner_effect,
         FROM chat_rooms r
         JOIN users u ON u.student_id =
             CASE WHEN r.student_id = ? THEN r.teacher_id ELSE r.student_id END
@@ -568,3 +570,27 @@ def add_stamp_message(room_id, sender_id, item_id):
     )
     conn.commit()
     conn.close()
+
+def get_upcoming_lessons(student_id):
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT r.request_id, r.status,
+               CASE WHEN r.student_id = ? THEN r.teacher_id ELSE r.student_id END AS partner_id,
+               u.nickname AS partner_name,
+               s.subject_name,
+               (SELECT GROUP_CONCAT(a.date || ' ' || a.period || '時限', ', ')
+                FROM match_request_slots ms
+                JOIN availabilities a ON a.slot_id = ms.slot_id
+                WHERE ms.request_id = r.request_id) AS slot_text,
+               (SELECT room_id FROM chat_rooms c
+                WHERE (c.student_id = r.student_id AND c.teacher_id = r.teacher_id)) AS room_id
+        FROM match_requests r
+        JOIN users u ON u.student_id =
+            CASE WHEN r.student_id = ? THEN r.teacher_id ELSE r.student_id END
+        JOIN subjects s ON s.subject_id = r.subject_id
+        WHERE (r.student_id = ? OR r.teacher_id = ?)
+          AND r.status IN ('承認', '完了待ち')
+        ORDER BY slot_text
+    """, (student_id, student_id, student_id, student_id)).fetchall()
+    conn.close()
+    return rows

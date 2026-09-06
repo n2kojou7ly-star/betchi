@@ -23,11 +23,21 @@
 
         {% if session.get('student_id') and me_user %}
         <a href="{{ url_for('settings') }}" class="common-icon-link">
-            {% if me_user.icon %}
-            <img src="{{ url_for('static', filename='img/' + me_user.icon) }}" class="common-icon-img">
-            {% else %}
-            <span class="common-icon-placeholder">{{ me_user.nickname[0] }}</span>
-            {% endif %}
+            <div class="avatar-wrap common-header-avatar">
+                {% if me_user.effect_item_id %}
+                <img src="{{ url_for('static', filename='img/effects/' + me_user.effect_item_id + '.png') }}"
+                    class="avatar-effect">
+                {% endif %}
+                {% if me_user.icon %}
+                <img src="{{ url_for('static', filename='img/' + me_user.icon) }}" class="avatar-img">
+                {% else %}
+                <span class="common-icon-placeholder">{{ me_user.nickname[0] }}</span>
+                {% endif %}
+                {% if me_user.icon_frame_item_id %}
+                <img src="{{ url_for('static', filename='img/frames/' + me_user.icon_frame_item_id + '.png') }}"
+                    class="avatar-frame">
+                {% endif %}
+            </div>
         </a>
         {% else %}
         <span class="common-menu-spacer"></span>
@@ -41,6 +51,10 @@
         {% if me_user %}
         <div class="common-drawer-profile">
             <div class="avatar-wrap">
+                {% if me_user.effect_item_id %}
+                <img src="{{ url_for('static', filename='img/effects/' + me_user.effect_item_id + '.png') }}"
+                    class="avatar-effect">
+                {% endif %}
                 {% if me_user.icon %}
                 <img src="{{ url_for('static', filename='img/' + me_user.icon) }}" class="avatar-img">
                 {% endif %}

@@ -335,4 +335,18 @@ base.html の block 名は role.html を見本にしています。
     </form>
 
 </div>
+<script>
+    (function () {
+        var form = document.querySelector('.set-form');
+        if (!form) return;
+        var dirty = false;
+        form.addEventListener('input', function () { dirty = true; });
+        form.addEventListener('submit', function () { dirty = false; });
+        window.addEventListener('beforeunload', function (e) {
+            if (!dirty) return;
+            e.preventDefault();
+            e.returnValue = '';
+        });
+    })();
+</script>
 {% endblock %}

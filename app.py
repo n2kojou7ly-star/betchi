@@ -1,9 +1,10 @@
 from flask import Flask, render_template, redirect, url_for, session, request, jsonify
 from werkzeug.security import check_password_hash
 import db
+import os
 
 app = Flask(__name__)
-app.secret_key = "betchi-dev-key"
+app.secret_key = os.environ.get('BETCHI_SECRET_KEY', 'betchi-dev-key')
 
 ICONS = ['icons/icon1.png', 'icons/icon2.png', 'icons/icon3.png',
          'icons/icon4.png', 'icons/icon5.png']
@@ -107,7 +108,8 @@ def student():
         topic_id=topic_id,
         date=date,
         my_requests=db.get_requests_for_student(student_id),
-        pending=db.get_pending_completions(student_id)
+        pending=db.get_pending_completions(student_id),
+        upcoming=db.get_upcoming_lessons(student_id),        
     )
 
 
@@ -132,7 +134,8 @@ def teacher():
         'teacher.html',
         slots=db.get_availabilities(student_id),
         requests=db.get_requests_for_teacher(student_id),
-        pending=db.get_pending_completions(student_id)
+        pending=db.get_pending_completions(student_id),
+        upcoming=db.get_upcoming_lessons(student_id),
     )
 
 

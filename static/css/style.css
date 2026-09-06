@@ -725,6 +725,114 @@ main {
     color: #C0392B !important;
 }
 
+.chat-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    margin: -16px -16px 16px;
+    background-color: #F5F0EC;
+    border-bottom: 2px solid var(--main-color);
+}
+
+.chat-header-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.avatar-effect {
+    position: absolute;
+    top: -40%;
+    left: -40%;
+    width: 180%;
+    height: 180%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.avatar-img {
+    position: relative;
+    z-index: 1;
+}
+
+.avatar-frame {
+    z-index: 2;
+}
+
+.common-header-avatar {
+    width: 36px;
+    height: 36px;
+    overflow: visible;
+}
+
+/* ---------- スワイプ改修分（既存の .swipe- に追記） ---------- */
+.swipe-badge-match {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(-8deg);
+    color: #E67E22;
+    border-color: #E67E22;
+    font-size: 24px;
+}
+
+.swipe-showing-match .swipe-badge-match {
+    opacity: 1;
+}
+
+.swipe-buttons {
+    gap: 16px;
+}
+
+.swipe-btn-match {
+    color: #E67E22;
+    font-size: 24px;
+}
+
+.swipe-btn-back {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+    color: #999999;
+}
+
+.swipe-btn-back:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.swipe-counter {
+    display: block;
+    text-align: center;
+    margin-top: 8px;
+    font-size: 13px;
+    color: #777777;
+}
+
+.swipe-result-title {
+    margin: 16px 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--main-color);
+    font-size: 15px;
+}
+
+#swipe-match-section .stu-result-item {
+    border-color: #E67E22;
+    border-width: 2px;
+}
+
+.swipe-done {
+    text-align: left;
+}
+
+.swipe-done h3 {
+    text-align: center;
+}
+
+.swipe-again {
+    display: block;
+    margin: 24px auto 0;
+}
+
 /* ==========================================================
    ここから かとはる 担当分 
    ========================================================== */

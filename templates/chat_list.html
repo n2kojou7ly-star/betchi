@@ -9,6 +9,10 @@
     <li class="chat-room-item">
         <a href="{{ url_for('chat', room_id=r.room_id) }}">
             <div class="avatar-wrap avatar-wrap-sm">
+                {% if r.partner_effect %}
+                <img src="{{ url_for('static', filename='img/effects/' + r.partner_effect + '.png') }}"
+                    class="avatar-effect">
+                {% endif %}
                 {% if r.partner_icon %}
                 <img src="{{ url_for('static', filename='img/' + r.partner_icon) }}" class="avatar-img">
                 {% endif %}
