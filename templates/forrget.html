@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{# TODO: ルート名(/reset-password)となおきとすり合わせる #}
+{% block content %}
+<div class="login-container">
+    <h1 class="login-title">パスワード再設定</h1>
+    <p class="login-subtitle">学籍番号と新しいパスワードを入力してください。</p>
+
+    {% if error %}<p class="login-error">{{ error }}</p>{% endif %}
+    {% if success %}<p class="login-success">{{ success }}</p>{% endif %}
+
+    {# TODO: なおきとすり合わせるまでの仮のname属性(student_id, new_password) #}
+    <form class="login-form" method="post">
+        <div class="login-field">
+            <label class="login-label login-label-lg" for="student_id">学籍番号</label>
+            <input class="login-input login-input-lg" type="text" id="student_id" name="student_id" required>
+        </div>
+
+        <div class="login-field">
+            <label class="login-label login-label-lg" for="new_password">新しいパスワード</label>
+            <input class="login-input login-input-lg" type="password" id="new_password" name="new_password" required>
+        </div>
+
+        <button class="login-submit" type="submit">パスワードを変更する</button>
+    </form>
+
+    <div class="login-links">
+        <a class="login-link" href="/login">ログイン画面に戻る</a>
+    </div>
+</div>
+{% endblock %}

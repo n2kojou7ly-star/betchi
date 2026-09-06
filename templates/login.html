@@ -25,10 +25,9 @@
     </form>
 
     <div class="login-links">
-        {# TODO: パスワード再発行機能は未実装 #}
-        <a class="login-link" href="#">パスワードを忘れた方はこちら</a>
+        <a class="login-link" href="/reset-password">パスワードを忘れた方はこちら</a>
         <br>
-        <a class="login-link" href="/signup">アカウントをお持ちでない方はこちら</a>
+        <a class="login-link" href="{{ url_for('signup') }}">アカウントを作る</a>
     </div>
 </div>
 {% endblock %}
