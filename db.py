@@ -131,6 +131,8 @@ def search_teachers(subject_id, date, exclude_student_id):
             u.nickname,
             u.icon,
             u.profile,
+            u.icon_frame_item_id,
+            (SELECT item_name FROM items WHERE item_id = u.catchcopy_item_id) AS catchcopy,
             COUNT(a.slot_id) AS slot_count,
             COALESCE((SELECT SUM(amount) FROM point_transactions p
                       WHERE p.student_id = u.student_id), 0) AS balance
@@ -278,14 +280,15 @@ def get_chat_rooms(student_id):
     conn = get_conn()
     rows = conn.execute("""
         SELECT r.room_id,
-               CASE WHEN r.student_id = ? THEN r.teacher_id ELSE r.student_id END AS partner_id,
+               u.student_id AS partner_id,
                u.nickname AS partner_name,
-               u.icon AS partner_icon
+               u.icon AS partner_icon,
+               u.icon_frame_item_id AS partner_frame
         FROM chat_rooms r
         JOIN users u ON u.student_id =
             CASE WHEN r.student_id = ? THEN r.teacher_id ELSE r.student_id END
         WHERE r.student_id = ? OR r.teacher_id = ?
-    """, (student_id, student_id, student_id, student_id)).fetchall()
+    """, (student_id, student_id, student_id)).fetchall()
     conn.close()
     return rows
 
@@ -413,9 +416,9 @@ def get_busy_periods(student_id, date):
 def get_dev_stats():
     conn = get_conn()
     stats = {}
-    for name in ("users", "teaching_subjects", "availabilities",
-                 "match_requests", "chat_rooms", "messages",
-                 "point_transactions", "exchanges"):
+    for name in ("users", "subjects", "subject_topics", "teaching_subjects",
+                 "teaching_topics", "availabilities", "match_requests",
+                 "chat_rooms", "messages", "point_transactions", "exchanges"):
         stats[name] = conn.execute(f"SELECT COUNT(*) AS c FROM {name}").fetchone()["c"]
     users = conn.execute("""
         SELECT u.student_id, u.nickname,
@@ -484,3 +487,56 @@ def get_messages_after(room_id, after_id):
     """, (room_id, after_id)).fetchall()
     conn.close()
     return rows
+
+def get_owned_items_by_category(student_id, category):
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT items.item_id, items.item_name
+        FROM exchanges
+        JOIN items ON exchanges.item_id = items.item_id
+        WHERE exchanges.student_id = ? AND items.category = ?
+    """, (student_id, category)).fetchall()
+    conn.close()
+    return rows
+
+def set_equipped_items(student_id, icon_frame_item_id, catchcopy_item_id, effect_item_id):
+    conn = get_conn()
+    conn.execute(
+        "UPDATE users SET icon_frame_item_id = ?, catchcopy_item_id = ?, effect_item_id = ? WHERE student_id = ?",
+        (icon_frame_item_id or None, catchcopy_item_id or None,
+         effect_item_id or None, student_id)
+    )
+    conn.commit()
+    conn.close()
+
+def get_topics_by_subject():
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT * FROM subject_topics ORDER BY subject_id, topic_id"
+    ).fetchall()
+    conn.close()
+    result = {}
+    for r in rows:
+        result.setdefault(r["subject_id"], []).append(
+            {"topic_id": r["topic_id"], "topic_name": r["topic_name"]}
+        )
+    return result
+
+def get_teaching_topic_ids(student_id):
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT topic_id FROM teaching_topics WHERE student_id = ?", (student_id,)
+    ).fetchall()
+    conn.close()
+    return [r["topic_id"] for r in rows]
+
+def set_teaching_topics(student_id, topic_ids):
+    conn = get_conn()
+    conn.execute("DELETE FROM teaching_topics WHERE student_id = ?", (student_id,))
+    for tid in topic_ids:
+        conn.execute(
+            "INSERT INTO teaching_topics (student_id, topic_id) VALUES (?, ?)",
+            (student_id, tid)
+        )
+    conn.commit()
+    conn.close()

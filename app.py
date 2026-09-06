@@ -4,7 +4,8 @@ import db
 from flask import jsonify
 
 app = Flask(__name__)
-ICONS = ['icon1.png', 'icon2.png', 'icon3.png', 'icon4.png', 'icon5.png']
+ICONS = ['icons/icon1.png', 'icons/icon2.png', 'icons/icon3.png',
+         'icons/icon4.png', 'icons/icon5.png']
 app.secret_key = "betchi-dev-key"
 
 @app.route('/')
@@ -107,16 +108,25 @@ def settings():
             request.form.get('icon', '')
         )
         db.set_teaching_subjects(student_id, request.form.getlist('teaching_subject_ids'))
+        db.set_teaching_topics(student_id, request.form.getlist('teaching_topic_ids'))
+        db.set_equipped_items(
+            student_id,
+            request.form.get('icon_frame_item_id'),
+            request.form.get('catchcopy_item_id'),
+            request.form.get('effect_item_id')
+        )
         return redirect(url_for('settings'))
-    user = db.get_user_by_id(student_id)
-    subjects = db.get_all_subjects()
-    teaching_subject_ids = db.get_teaching_subject_ids(student_id)
     return render_template(
         'settings.html',
-        user=user,
-        subjects=subjects,
-        teaching_subject_ids=teaching_subject_ids,
-        icons=ICONS
+        user=db.get_user_by_id(student_id),
+        subjects=db.get_all_subjects(),
+        teaching_subject_ids=db.get_teaching_subject_ids(student_id),
+        topics_by_subject=db.get_topics_by_subject(),
+        teaching_topic_ids=db.get_teaching_topic_ids(student_id),
+        icons=ICONS,
+        owned_icon_frames=db.get_owned_items_by_category(student_id, 'アイコンフレーム'),
+        owned_catchcopies=db.get_owned_items_by_category(student_id, 'キャッチコピー'),
+        owned_effects=db.get_owned_items_by_category(student_id, 'エフェクト')
     )
 
 @app.route('/points')

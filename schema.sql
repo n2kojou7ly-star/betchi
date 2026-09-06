@@ -8,6 +8,9 @@ CREATE TABLE users (
     nickname       TEXT NOT NULL,
     icon           TEXT,
     profile        TEXT,
+    icon_frame_item_id  TEXT,
+    catchcopy_item_id   TEXT,
+    effect_item_id      TEXT,
     created_at     TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
 );
 
@@ -112,4 +115,22 @@ CREATE TABLE messages (
     created_at      TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
     FOREIGN KEY (room_id) REFERENCES chat_rooms(room_id),
     FOREIGN KEY (sender_id) REFERENCES users(student_id)
+);
+
+DROP TABLE IF EXISTS subject_topics;
+DROP TABLE IF EXISTS teaching_topics;
+
+CREATE TABLE subject_topics (
+    topic_id    INTEGER PRIMARY KEY AUTOINCREMENT,
+    subject_id  INTEGER NOT NULL,
+    topic_name  TEXT NOT NULL,
+    FOREIGN KEY (subject_id) REFERENCES subjects(subject_id)
+);
+
+CREATE TABLE teaching_topics (
+    student_id  TEXT NOT NULL,
+    topic_id    INTEGER NOT NULL,
+    PRIMARY KEY (student_id, topic_id),
+    FOREIGN KEY (student_id) REFERENCES users(student_id),
+    FOREIGN KEY (topic_id) REFERENCES subject_topics(topic_id)
 );

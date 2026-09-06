@@ -8,9 +8,15 @@
     {% for r in rooms %}
     <li class="chat-room-item">
         <a href="{{ url_for('chat', room_id=r.room_id) }}">
-            {% if r.partner_icon %}
-            <img src="{{ url_for('static', filename='img/' + r.partner_icon) }}" class="chat-room-icon">
-            {% endif %}
+            <div class="avatar-wrap avatar-wrap-sm">
+                {% if r.partner_icon %}
+                <img src="{{ url_for('static', filename='img/' + r.partner_icon) }}" class="avatar-img">
+                {% endif %}
+                {% if r.partner_frame %}
+                <img src="{{ url_for('static', filename='img/frames/' + r.partner_frame + '.png') }}"
+                    class="avatar-frame">
+                {% endif %}
+            </div>
             {{ r.partner_name }}
         </a>
     </li>

@@ -23,10 +23,21 @@
 <ul class="stu-result-list">
     {% for t in results %}
     <li class="stu-result-item">
-        {% if t.icon %}
-        <img src="{{ url_for('static', filename='img/' + t.icon) }}" class="stu-result-icon">
-        {% endif %}
-        <span class="stu-result-name">{{ t.nickname }}</span>
+        <div class="avatar-wrap">
+            {% if t.icon %}
+            <img src="{{ url_for('static', filename='img/' + t.icon) }}" class="avatar-img">
+            {% endif %}
+            {% if t.icon_frame_item_id %}
+            <img src="{{ url_for('static', filename='img/frames/' + t.icon_frame_item_id + '.png') }}"
+                class="avatar-frame">
+            {% endif %}
+        </div>
+        <div class="stu-result-body">
+            <span class="stu-result-name">{{ t.nickname }}</span>
+            {% if t.catchcopy %}
+            <span class="stu-result-catchcopy">{{ t.catchcopy }}</span>
+            {% endif %}
+        </div>
         <span class="stu-result-slots">空き{{ t.slot_count }}枠</span>
         <span class="stu-result-point">{{ t.balance }}P</span>
         <a href="{{ url_for('apply', teacher_id=t.student_id, date=date, subject_id=subject_id) }}"

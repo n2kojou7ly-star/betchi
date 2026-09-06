@@ -283,18 +283,179 @@ main {
     font-size: 12px;
 }
 
+.avatar-wrap {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+.avatar-wrap-sm {
+    width: 40px;
+    height: 40px;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-frame {
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    width: calc(100% + 8px);
+    height: calc(100% + 8px);
+    pointer-events: none;
+}
+
+.stu-result-body {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.stu-result-catchcopy {
+    font-size: 12px;
+    color: var(--accent-color);
+}
+
 /* ==========================================================
    ここから かとはる 担当分 
    ========================================================== */
-/* かとはる: signup */
-.signup-field-top {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+/* かとはる: login / signup 共通(茶色ベースの本デザインに合わせて更新) */
+@import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&family=Noto+Sans+JP:wght@400;500&display=swap');
+
+.login-container,
+.signup-container {
+    max-width: 480px;
+    margin: 40px auto;
+    padding: 24px;
+    font-family: "Noto Sans JP", sans-serif;
 }
 
-.signup-field-top .signup-label {
-    margin-bottom: 4px;
+.login-title,
+.signup-title {
+    font-family: "Zen Maru Gothic", sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    color: #4E342E;
+    margin: 0 0 8px;
+    text-align: center;
+}
+
+.login-subtitle,
+.signup-subtitle {
+    font-size: 14px;
+    color: #757575;
+    margin: 0 0 32px;
+    text-align: center;
+}
+
+.login-error,
+.signup-error {
+    font-size: 13px;
+    color: #C0392B;
+    background: #FBEAE8;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 0 0 20px;
+}
+
+.login-field,
+.signup-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 22px;
+}
+
+.login-label,
+.signup-label {
+    font-family: "Zen Maru Gothic", sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #3E2723;
+}
+
+.login-label-lg,
+.signup-label-lg {
+    font-size: 20px;
+}
+
+.login-input,
+.signup-input,
+.signup-textarea {
+    padding: 14px 16px;
+    font-size: 17px;
+    font-family: "Noto Sans JP", sans-serif;
+    color: #3E2723;
+    border: 1.5px solid #DCD5CF;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.login-input-lg,
+.signup-input-lg {
+    padding: 16px 18px;
+    font-size: 19px;
+}
+
+.login-input:focus,
+.signup-input:focus,
+.signup-textarea:focus {
+    border-color: #5D4037;
+}
+
+.signup-icon-options {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.login-submit,
+.signup-submit {
+    width: 100%;
+    padding: 16px;
+    margin-top: 8px;
+    background: #5D4037;
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: "Zen Maru Gothic", sans-serif;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.login-submit:hover,
+.signup-submit:hover {
+    background: #4E342E;
+}
+
+.login-links,
+.signup-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.login-link,
+.signup-link {
+    font-size: 14px;
+    color: #5D4037;
+    text-decoration: underline;
+}
+
+.login-link:hover,
+.signup-link:hover {
+    color: #4E342E;
 }
 
 /* ここまで　かとはる 担当分 */
