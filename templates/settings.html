@@ -14,10 +14,14 @@ base.html の block 名は role.html を見本にしています。
     {# --------------------------------------------------------
     なおきへ: このページを表示するには、
     app.py 側の /settings ルートで以下をテンプレートに渡してください。
-    - user: users テーブルの1行（学番・ニックネーム・アイコン・プロフィール文）
+    - user: users テーブルの1行（学番・ニックネーム・アイコン・プロフィール文・
+    icon_frame_item_id・catchcopy_item_id・effect_item_id）
     - subjects: subjects テーブル全件（教える教科の選択肢用）
     - teaching_subject_ids: そのユーザーが今チェックしている教科IDのリスト
     - icons: 選べるアイコンのファイル名5件
+    - owned_icon_frames: そのユーザーが交換済みの「アイコンフレーム」カテゴリのitems
+    - owned_catchcopies: そのユーザーが交換済みの「キャッチコピー」カテゴリのitems
+    - owned_effects: そのユーザーが交換済みの「エフェクト」カテゴリのitems
     -------------------------------------------------------- #}
 
     <form class="set-form" action="{{ url_for('settings') }}" method="post">
@@ -35,6 +39,81 @@ base.html の block 名は role.html を見本にしています。
                 </label>
                 {% endfor %}
             </div>
+        </div>
+
+        {# ---------- 使うアイコンフレーム（ポイントで交換したもの） ---------- #}
+        <div class="set-field">
+            <span class="set-label">使うアイコンフレーム</span>
+
+            {% if owned_icon_frames %}
+            <p class="set-hint">持っているフレームの中から使うものを選べます。</p>
+            <div class="set-owned-item-list">
+                <label class="set-owned-item">
+                    <input type="radio" name="icon_frame_item_id" value="" {% if not user.icon_frame_item_id %}checked{%
+                        endif %}>
+                    使わない
+                </label>
+                {% for item in owned_icon_frames %}
+                <label class="set-owned-item">
+                    <input type="radio" name="icon_frame_item_id" value="{{ item.item_id }}" {% if
+                        user.icon_frame_item_id==item.item_id %}checked{% endif %}>
+                    {{ item.item_name }}
+                </label>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="set-hint">まだ持っていません。ポイントページで交換できます。</p>
+            {% endif %}
+        </div>
+
+        {# ---------- 使うキャッチコピー（ポイントで交換したもの） ---------- #}
+        <div class="set-field">
+            <span class="set-label">使うキャッチコピー</span>
+
+            {% if owned_catchcopies %}
+            <p class="set-hint">持っているキャッチコピーの中から使うものを選べます。</p>
+            <div class="set-owned-item-list">
+                <label class="set-owned-item">
+                    <input type="radio" name="catchcopy_item_id" value="" {% if not user.catchcopy_item_id %}checked{%
+                        endif %}>
+                    使わない
+                </label>
+                {% for item in owned_catchcopies %}
+                <label class="set-owned-item">
+                    <input type="radio" name="catchcopy_item_id" value="{{ item.item_id }}" {% if
+                        user.catchcopy_item_id==item.item_id %}checked{% endif %}>
+                    {{ item.item_name }}
+                </label>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="set-hint">まだ持っていません。ポイントページで交換できます。</p>
+            {% endif %}
+        </div>
+
+        {# ---------- 使うエフェクト（ポイントで交換したもの） ---------- #}
+        <div class="set-field">
+            <span class="set-label">使うエフェクト</span>
+
+            {% if owned_effects %}
+            <p class="set-hint">持っているエフェクトの中から使うものを選べます。</p>
+            <div class="set-owned-item-list">
+                <label class="set-owned-item">
+                    <input type="radio" name="effect_item_id" value="" {% if not user.effect_item_id %}checked{% endif
+                        %}>
+                    使わない
+                </label>
+                {% for item in owned_effects %}
+                <label class="set-owned-item">
+                    <input type="radio" name="effect_item_id" value="{{ item.item_id }}" {% if
+                        user.effect_item_id==item.item_id %}checked{% endif %}>
+                    {{ item.item_name }}
+                </label>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="set-hint">まだ持っていません。ポイントページで交換できます。</p>
+            {% endif %}
         </div>
 
         {# ---------- ニックネーム ---------- #}
