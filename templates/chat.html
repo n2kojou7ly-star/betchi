@@ -7,7 +7,11 @@
 <div class="chat-messages">
     {% for m in messages %}
     <div class="chat-message {% if m.sender_id == me %}chat-message-mine{% endif %}">
+        {% if m.kind == 'スタンプ' %}
+        <img src="{{ url_for('static', filename='img/stamps/' + m.body + '.png') }}" class="chat-stamp">
+        {% else %}
         <div class="chat-bubble">{{ m.body }}</div>
+        {% endif %}
         <div class="chat-time">{{ m.created_at[11:16] }}</div>
     </div>
     {% endfor %}
@@ -18,6 +22,23 @@
     <button type="submit">送信</button>
 </form>
 
+<button type="button" id="chat-stamp-toggle" class="chat-stamp-toggle">スタンプ</button>
+
+<div id="chat-stamp-panel" class="chat-stamp-panel" hidden>
+    {% if stamps %}
+    {% for s in stamps %}
+    <form method="post" class="chat-stamp-form">
+        <input type="hidden" name="stamp_id" value="{{ s.item_id }}">
+        <button type="submit" class="chat-stamp-btn" title="{{ s.item_name }}">
+            <img src="{{ url_for('static', filename='img/stamps/' + s.item_id + '.png') }}" alt="{{ s.item_name }}">
+        </button>
+    </form>
+    {% endfor %}
+    {% else %}
+    <p>使えるスタンプがありません。</p>
+    {% endif %}
+</div>
+
 <p><a href="{{ url_for('chat_list') }}">戻る</a></p>
 
 <script>
@@ -25,16 +46,31 @@
     var lastId = {{ messages[-1].message_id if messages else 0 }};
     var box = document.querySelector('.chat-messages');
 
+    var toggle = document.getElementById('chat-stamp-toggle');
+    var panel = document.getElementById('chat-stamp-panel');
+    toggle.addEventListener('click', function () {
+        panel.hidden = !panel.hidden;
+    });
+
     function addMessage(m) {
         var wrap = document.createElement('div');
         wrap.className = 'chat-message' + (m.mine ? ' chat-message-mine' : '');
-        var bubble = document.createElement('div');
-        bubble.className = 'chat-bubble';
-        bubble.textContent = m.body;
+
+        if (m.kind === 'スタンプ') {
+            var stamp = document.createElement('img');
+            stamp.className = 'chat-stamp';
+            stamp.src = '/static/img/stamps/' + m.body + '.png';
+            wrap.appendChild(stamp);
+        } else {
+            var bubble = document.createElement('div');
+            bubble.className = 'chat-bubble';
+            bubble.textContent = m.body;
+            wrap.appendChild(bubble);
+        }
+
         var time = document.createElement('div');
         time.className = 'chat-time';
         time.textContent = m.created_at.slice(11, 16);
-        wrap.appendChild(bubble);
         wrap.appendChild(time);
         box.appendChild(wrap);
     }

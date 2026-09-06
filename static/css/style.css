@@ -322,6 +322,103 @@ main {
     color: var(--accent-color);
 }
 
+.stu-result-topics {
+    font-size: 12px;
+    color: #777777;
+}
+
+/* ---------- チャットのスタンプ ---------- */
+.chat-stamp {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+}
+
+.chat-stamp-toggle {
+    margin-top: 8px;
+    padding: 8px 16px;
+    border: 1px solid var(--main-color);
+    border-radius: 6px;
+    background: none;
+    color: var(--main-color);
+    cursor: pointer;
+}
+
+.chat-stamp-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 12px;
+    border: 1px solid #DDDDDD;
+    border-radius: 8px;
+}
+
+.chat-stamp-form {
+    margin: 0;
+}
+
+.chat-stamp-btn {
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.chat-stamp-btn img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+
+.role-container {
+    max-width: 480px;
+    margin: 40px auto;
+    padding: 24px;
+    font-family: "Noto Sans JP", sans-serif;
+}
+
+.role-title {
+    font-family: "Zen Maru Gothic", sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    color: #4E342E;
+    margin: 0 0 8px;
+    text-align: center;
+}
+
+.role-subtitle {
+    font-size: 14px;
+    color: #757575;
+    margin: 0 0 32px;
+    text-align: center;
+}
+
+.role-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.role-option {
+    width: 100%;
+    padding: 20px;
+    background: #FFFFFF;
+    color: #3E2723;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: "Zen Maru Gothic", sans-serif;
+    border: 1.5px solid #DCD5CF;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.role-option:hover {
+    background: #F5F0EC;
+    border-color: #5D4037;
+}
+
 /* ==========================================================
    ここから かとはる 担当分 
    ========================================================== */
@@ -562,14 +659,51 @@ main {
 /* 教科チェックボックス */
 .set-subject-list {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 12px;
+}
+
+.set-subject-block {
+    border: 1px solid #EEEEEE;
+    border-radius: 8px;
+    padding: 10px 12px;
 }
 
 .set-subject-item {
     display: flex;
     align-items: center;
     gap: 6px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.set-topic-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+    padding-left: 24px;
+}
+
+.set-topic-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #555555;
+}
+
+/* 持っているアイテム（アイコンフレーム・キャッチコピー）から選ぶ */
+.set-owned-item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.set-owned-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-size: 14px;
 }
 
@@ -645,90 +779,26 @@ main {
 }
 
 .point-item-row {
-    border: 1px solid #DDDDDD;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.point-item-toggle {
-    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
+    border: 1px solid #DDDDDD;
+    border-radius: 8px;
     padding: 12px 16px;
-    border: none;
-    background: none;
-    cursor: pointer;
-    font-family: inherit;
-    color: #5C4033;
 }
 
 .point-item-name {
     font-size: 15px;
     font-weight: bold;
-}
-
-.point-item-arrow {
-    color: #5C8A3A;
-    /* Figmaの緑アクセントに合わせる */
-    font-size: 12px;
-    transition: transform 0.15s ease;
-}
-
-.point-item-toggle-open .point-item-arrow {
-    transform: rotate(180deg);
-}
-
-.point-item-sublist {
-    list-style: none;
-    margin: 0;
-    padding: 0 16px 12px 16px;
-}
-
-.point-subitem {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 8px 0;
-    border-top: 1px solid #EEEEEE;
-    font-size: 14px;
-    color: #333333;
-}
-
-.point-subitem-name {
     flex: 1;
 }
 
-.point-subitem-cost {
+.point-item-cost {
+    font-size: 14px;
     color: #5C8A3A;
     /* Figmaの緑アクセントに合わせる */
-    font-size: 13px;
     white-space: nowrap;
-}
-
-.point-subitem-form {
-    margin: 0;
-}
-
-.point-subitem-btn {
-    padding: 6px 14px;
-    border: none;
-    border-radius: 6px;
-    background-color: #5C8A3A;
-    color: #FFFFFF;
-    font-size: 12px;
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-.point-subitem-btn:hover {
-    background-color: #4A7030;
-}
-
-.point-subitem-btn-owned {
-    background-color: #CCCCCC;
-    cursor: not-allowed;
 }
 
 .point-exchange-form {
@@ -742,6 +812,7 @@ main {
     background-color: #5C8A3A;
     color: #FFFFFF;
     font-size: 13px;
+    white-space: nowrap;
     cursor: pointer;
 }
 

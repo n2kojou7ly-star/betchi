@@ -5,7 +5,7 @@
 <h2>何勉強する?</h2>
 
 <form method="get" class="stu-search-form">
-    <select name="subject_id" required>
+    <select name="subject_id" id="stu-subject-select" required>
         <option value="">教科を選択</option>
         {% for s in subjects %}
         <option value="{{ s.subject_id }}" {% if subject_id==s.subject_id|string %}selected{% endif %}>
@@ -13,9 +13,40 @@
         </option>
         {% endfor %}
     </select>
+
+    <select name="topic_id" id="stu-topic-select">
+        <option value="">分野を指定しない</option>
+        {% for s in subjects %}
+        {% for t in topics_by_subject.get(s.subject_id, []) %}
+        <option value="{{ t.topic_id }}" data-subject="{{ s.subject_id }}" {% if topic_id==t.topic_id|string
+            %}selected{% endif %}>
+            {{ t.topic_name }}
+        </option>
+        {% endfor %}
+        {% endfor %}
+    </select>
+
     <input type="date" name="date" value="{{ date or '' }}" required>
     <button type="submit">検索</button>
 </form>
+
+<script>
+    var subjectSelect = document.getElementById('stu-subject-select');
+    var topicSelect = document.getElementById('stu-topic-select');
+
+    function filterTopics() {
+        var subject = subjectSelect.value;
+        Array.prototype.forEach.call(topicSelect.options, function (opt) {
+            if (!opt.value) return;
+            var match = opt.dataset.subject === subject;
+            opt.hidden = !match;
+            if (!match && opt.selected) topicSelect.value = '';
+        });
+    }
+
+    subjectSelect.addEventListener('change', filterTopics);
+    filterTopics();
+</script>
 
 {% if results is not none %}
 <h3>検索結果</h3>
@@ -35,6 +66,9 @@
         <div class="stu-result-body">
             <span class="stu-result-name">{{ t.nickname }}</span>
             {% if t.catchcopy %}
+            {% if t.topic_text %}
+            <span class="stu-result-topics">{{ t.topic_text }}</span>
+            {% endif %}
             <span class="stu-result-catchcopy">{{ t.catchcopy }}</span>
             {% endif %}
         </div>

@@ -18,6 +18,8 @@ base.html の block 名は role.html を見本にしています。
     icon_frame_item_id・catchcopy_item_id・effect_item_id）
     - subjects: subjects テーブル全件（教える教科の選択肢用）
     - teaching_subject_ids: そのユーザーが今チェックしている教科IDのリスト
+    - topics_by_subject: { 教科ID: [{topic_id, topic_name}, ...] } の辞書
+    - teaching_topic_ids: そのユーザーが今チェックしているトピックIDのリスト
     - icons: 選べるアイコンのファイル名5件
     - owned_icon_frames: そのユーザーが交換済みの「アイコンフレーム」カテゴリのitems
     - owned_catchcopies: そのユーザーが交換済みの「キャッチコピー」カテゴリのitems
@@ -134,18 +136,51 @@ base.html の block 名は role.html を見本にしています。
         {# ---------- 対応教科（先生として教える科目） ---------- #}
         <div class="set-field">
             <span class="set-label">教えられる教科</span>
-            <p class="set-hint">チェックした教科があると、先生として一覧に表示されます。</p>
+            <p class="set-hint">チェックした教科があると、先生として一覧に表示されます。教科の中の分野（トピック）も選べます。</p>
 
             <div class="set-subject-list">
                 {% for subject in subjects %}
-                <label class="set-subject-item">
-                    <input type="checkbox" name="teaching_subject_ids" value="{{ subject.subject_id }}" {% if
-                        subject.subject_id in teaching_subject_ids %}checked{% endif %}>
-                    {{ subject.subject_name }}
-                </label>
+                <div class="set-subject-block">
+                    <label class="set-subject-item">
+                        <input type="checkbox" name="teaching_subject_ids" class="set-subject-checkbox"
+                            data-topics-target="set-topics-{{ subject.subject_id }}" value="{{ subject.subject_id }}" {%
+                            if subject.subject_id in teaching_subject_ids %}checked{% endif %}>
+                        {{ subject.subject_name }}
+                    </label>
+
+                    {% set topics = topics_by_subject.get(subject.subject_id) if topics_by_subject else None %}
+                    {% if topics %}
+                    <div class="set-topic-list" id="set-topics-{{ subject.subject_id }}" {% if subject.subject_id not in
+                        teaching_subject_ids %}hidden{% endif %}>
+                        {% for topic in topics %}
+                        <label class="set-topic-item">
+                            <input type="checkbox" name="teaching_topic_ids" value="{{ topic.topic_id }}" {% if
+                                topic.topic_id in teaching_topic_ids %}checked{% endif %}>
+                            {{ topic.topic_name }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
                 {% endfor %}
             </div>
         </div>
+
+        {# --------------------------------------------------------
+        教科チェックの開閉に合わせてトピック一覧を表示/非表示にするJS。
+        settings.html はこうた担当ファイルなのでこの中で完結させる。
+        -------------------------------------------------------- #}
+        <script>
+            document.querySelectorAll('.set-subject-checkbox').forEach(function (checkbox) {
+                checkbox.addEventListener('change', function () {
+                    var targetId = checkbox.getAttribute('data-topics-target');
+                    var list = document.getElementById(targetId);
+                    if (list) {
+                        list.hidden = !checkbox.checked;
+                    }
+                });
+            });
+        </script>
 
         <button class="set-submit-btn" type="submit">保存する</button>
 

@@ -123,7 +123,7 @@ def exchange_item(student_id, item_id, required_point):
     conn.commit()
     conn.close()
 
-def search_teachers(subject_id, date, exclude_student_id):
+def search_teachers(subject_id, date, exclude_student_id, topic_id=None):
     conn = get_conn()
     rows = conn.execute("""
         SELECT
@@ -133,6 +133,12 @@ def search_teachers(subject_id, date, exclude_student_id):
             u.profile,
             u.icon_frame_item_id,
             (SELECT item_name FROM items WHERE item_id = u.catchcopy_item_id) AS catchcopy,
+            (SELECT GROUP_CONCAT(st.topic_name, '・')
+             FROM teaching_topics tt
+             JOIN subject_topics st ON st.topic_id = tt.topic_id
+             WHERE tt.student_id = u.student_id AND st.subject_id = ?) AS topic_text,
+            (SELECT COUNT(*) FROM teaching_topics tt2
+             WHERE tt2.student_id = u.student_id AND tt2.topic_id = ?) AS topic_match,
             COUNT(a.slot_id) AS slot_count,
             COALESCE((SELECT SUM(amount) FROM point_transactions p
                       WHERE p.student_id = u.student_id), 0) AS balance
@@ -144,8 +150,8 @@ def search_teachers(subject_id, date, exclude_student_id):
           AND a.status = '空き'
           AND u.student_id != ?
         GROUP BY u.student_id
-        ORDER BY slot_count DESC
-    """, (subject_id, date, exclude_student_id)).fetchall()
+        ORDER BY topic_match DESC, slot_count DESC
+    """, (subject_id, topic_id or 0, subject_id, date, exclude_student_id)).fetchall()
     conn.close()
     return rows
 
@@ -538,5 +544,27 @@ def set_teaching_topics(student_id, topic_ids):
             "INSERT INTO teaching_topics (student_id, topic_id) VALUES (?, ?)",
             (student_id, tid)
         )
+    conn.commit()
+    conn.close()
+
+def get_usable_stamps(student_id):
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT i.item_id, i.item_name
+        FROM items i
+        WHERE i.category = 'スタンプ'
+          AND (i.required_point = 0
+               OR i.item_id IN (SELECT item_id FROM exchanges WHERE student_id = ?))
+        ORDER BY i.required_point, i.item_id
+    """, (student_id,)).fetchall()
+    conn.close()
+    return rows
+
+def add_stamp_message(room_id, sender_id, item_id):
+    conn = get_conn()
+    conn.execute(
+        "INSERT INTO messages (room_id, sender_id, kind, body) VALUES (?, ?, 'スタンプ', ?)",
+        (room_id, sender_id, item_id)
+    )
     conn.commit()
     conn.close()

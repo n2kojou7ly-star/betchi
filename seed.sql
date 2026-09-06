@@ -13,7 +13,12 @@ INSERT INTO items (item_id, category, item_name, required_point) VALUES
   ('effect-c', 'エフェクト', '仮の商品C', 200),
   ('stamp-a', 'スタンプ', 'べっちくん（ごめんなさい）', 100),
   ('stamp-b', 'スタンプ', 'べっちくん（ありがとう）', 100),
-  ('stamp-c', 'スタンプ', 'べっちくん（喜び）', 100);
+  ('stamp-c', 'スタンプ', 'べっちくん（喜び）', 100),
+  ('stamp-free-a', 'スタンプ', 'べっちくん（はい）', 0),
+  ('stamp-free-b', 'スタンプ', 'べっちくん（よろしく）', 0),
+  ('stamp-free-c', 'スタンプ', 'べっちくん（了解）', 0),
+  ('stamp-free-d', 'スタンプ', 'かとはるです！', 0);
+
 
   INSERT INTO subject_topics (subject_id, topic_name) VALUES
   (1, '情報数学'), (1, '線形代数'), (1, 'データサイエンス基礎数理'), (1, '微分積分'), (1, '統計'),
@@ -23,3 +28,4 @@ INSERT INTO items (item_id, category, item_name, required_point) VALUES
   (5, '力学'), (5, '電磁気学'), (5, '熱力学'), (5, '波動'),
   (6, '理論化学'), (6, '無機化学'), (6, '有機化学'),
   (7, 'Web開発'), (7, 'アルゴリズム'), (7, '機械学習'), (7, 'アプリ開発'), (7, 'データベース');
+  

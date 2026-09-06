@@ -1,8 +1,13 @@
 {% extends "base.html" %}
+{% block title %}ベッチ - 立場選択{% endblock %}
+
 {% block content %}
-<h2>あなたはどっち?</h2>
-<form method="post">
-    <button type="submit" name="role" value="teacher">先生</button>
-    <button type="submit" name="role" value="student">生徒</button>
-</form>
+<div class="role-container">
+    <h1 class="role-title">あなたはどっち?</h1>
+    <p class="role-subtitle">今回はどちらとして使いますか</p>
+    <form method="post" class="role-form">
+        <button class="role-option" type="submit" name="role" value="teacher">先生</button>
+        <button class="role-option" type="submit" name="role" value="student">生徒</button>
+    </form>
+</div>
 {% endblock %}
