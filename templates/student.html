@@ -47,11 +47,67 @@
     subjectSelect.addEventListener('change', filterTopics);
     filterTopics();
 </script>
-
 {% if results is not none %}
-<h3>検索結果</h3>
 {% if results %}
-<ul class="stu-result-list">
+
+<div class="swipe-area" id="swipe-area">
+    <div class="swipe-stack" id="swipe-stack">
+        {% for t in results %}
+        <div class="swipe-card" data-index="{{ loop.index0 }}">
+            <div class="swipe-card-inner">
+                <div class="avatar-wrap swipe-avatar">
+                    {% if t.icon %}
+                    <img src="{{ url_for('static', filename='img/' + t.icon) }}" class="avatar-img">
+                    {% endif %}
+                    {% if t.icon_frame_item_id %}
+                    <img src="{{ url_for('static', filename='img/frames/' + t.icon_frame_item_id + '.png') }}"
+                        class="avatar-frame">
+                    {% endif %}
+                </div>
+
+                <h3 class="swipe-name">{{ t.nickname }}</h3>
+
+                {% if t.catchcopy %}
+                <p class="swipe-catchcopy">{{ t.catchcopy }}</p>
+                {% endif %}
+
+                {% if t.topic_text %}
+                <p class="swipe-topics">{{ t.topic_text }}</p>
+                {% endif %}
+
+                {% if t.profile %}
+                <p class="swipe-profile">{{ t.profile }}</p>
+                {% endif %}
+
+                <div class="swipe-meta">
+                    <span>空き {{ t.slot_count }} 枠</span>
+                    <span>{{ t.balance }} P</span>
+                </div>
+
+                <a href="{{ url_for('apply', teacher_id=t.student_id, date=date, subject_id=subject_id) }}"
+                    class="swipe-apply">この先生に申し込む</a>
+            </div>
+            <div class="swipe-badge swipe-badge-like">気になる</div>
+            <div class="swipe-badge swipe-badge-nope">スキップ</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="swipe-buttons">
+        <button type="button" class="swipe-btn swipe-btn-nope" id="swipe-nope">✕</button>
+        <span class="swipe-counter" id="swipe-counter"></span>
+        <button type="button" class="swipe-btn swipe-btn-like" id="swipe-like">♡</button>
+    </div>
+    <p class="stu-hint">カードを左右にドラッグするか、下のボタンで送れます。</p>
+</div>
+
+<div class="swipe-done" id="swipe-done" hidden>
+    <p>全員を見終わりました。</p>
+    <button type="button" class="swipe-again" id="swipe-again">もう一度スワイプする</button>
+</div>
+
+<h3 class="swipe-list-title">検索結果の一覧</h3>
+<ul class="stu-result-list" id="swipe-list" hidden>
     {% for t in results %}
     <li class="stu-result-item">
         <div class="avatar-wrap">
@@ -66,10 +122,10 @@
         <div class="stu-result-body">
             <span class="stu-result-name">{{ t.nickname }}</span>
             {% if t.catchcopy %}
+            <span class="stu-result-catchcopy">{{ t.catchcopy }}</span>
+            {% endif %}
             {% if t.topic_text %}
             <span class="stu-result-topics">{{ t.topic_text }}</span>
-            {% endif %}
-            <span class="stu-result-catchcopy">{{ t.catchcopy }}</span>
             {% endif %}
         </div>
         <span class="stu-result-slots">空き{{ t.slot_count }}枠</span>
@@ -79,6 +135,124 @@
     </li>
     {% endfor %}
 </ul>
+
+<script>
+    (function () {
+        var cards = Array.prototype.slice.call(document.querySelectorAll('.swipe-card')).reverse();
+        var area = document.getElementById('swipe-area');
+        var done = document.getElementById('swipe-done');
+        var list = document.getElementById('swipe-list');
+        var listTitle = document.querySelector('.swipe-list-title');
+        var counter = document.getElementById('swipe-counter');
+        var total = cards.length;
+        var index = 0;
+
+        listTitle.hidden = true;
+
+        function current() {
+            return index < total ? cards[total - 1 - index] : null;
+        }
+
+        function updateCounter() {
+            counter.textContent = Math.min(index + 1, total) + ' / ' + total;
+        }
+
+        cards.forEach(function (card, i) {
+            card.style.zIndex = i + 1;
+        });
+
+        function finish() {
+            area.hidden = true;
+            done.hidden = false;
+            listTitle.hidden = false;
+            list.hidden = false;
+        }
+
+        function send(card, dir) {
+            card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+            card.style.transform = 'translateX(' + (dir * 600) + 'px) rotate(' + (dir * 25) + 'deg)';
+            card.style.opacity = '0';
+            setTimeout(function () {
+                card.style.display = 'none';
+                index++;
+                updateCounter();
+                if (index >= total) finish();
+            }, 300);
+        }
+
+        document.getElementById('swipe-like').addEventListener('click', function () {
+            var c = current();
+            if (c) send(c, 1);
+        });
+        document.getElementById('swipe-nope').addEventListener('click', function () {
+            var c = current();
+            if (c) send(c, -1);
+        });
+
+        document.getElementById('swipe-again').addEventListener('click', function () {
+            cards.forEach(function (c) {
+                c.style.display = '';
+                c.style.transition = '';
+                c.style.transform = '';
+                c.style.opacity = '';
+            });
+            index = 0;
+            updateCounter();
+            area.hidden = false;
+            done.hidden = true;
+            listTitle.hidden = true;
+            list.hidden = true;
+        });
+
+        cards.forEach(function (card) {
+            var startX = 0, startY = 0, moved = false, dragging = false;
+
+            function onDown(e) {
+                if (card !== current()) return;
+                if (e.target.closest('.swipe-apply')) return;
+                dragging = true;
+                moved = false;
+                startX = (e.touches ? e.touches[0].clientX : e.clientX);
+                startY = (e.touches ? e.touches[0].clientY : e.clientY);
+                card.style.transition = '';
+            }
+
+            function onMove(e) {
+                if (!dragging) return;
+                var x = (e.touches ? e.touches[0].clientX : e.clientX) - startX;
+                var y = (e.touches ? e.touches[0].clientY : e.clientY) - startY;
+                if (Math.abs(x) > 5) moved = true;
+                card.style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + (x / 20) + 'deg)';
+                card.classList.toggle('swipe-showing-like', x > 60);
+                card.classList.toggle('swipe-showing-nope', x < -60);
+            }
+
+            function onUp(e) {
+                if (!dragging) return;
+                dragging = false;
+                var x = (e.changedTouches ? e.changedTouches[0].clientX : e.clientX) - startX;
+                card.classList.remove('swipe-showing-like', 'swipe-showing-nope');
+                if (Math.abs(x) > 100) {
+                    send(card, x > 0 ? 1 : -1);
+                } else {
+                    card.style.transition = 'transform 0.2s ease';
+                    card.style.transform = '';
+                }
+            }
+
+            card.addEventListener('mousedown', onDown);
+            card.addEventListener('mousemove', onMove);
+            card.addEventListener('mouseup', onUp);
+            card.addEventListener('mouseleave', onUp);
+            card.addEventListener('touchstart', onDown, { passive: true });
+            card.addEventListener('touchmove', onMove, { passive: true });
+            card.addEventListener('touchend', onUp);
+        });
+
+        updateCounter();
+    })();
+</script>
+
 {% else %}
 <p>条件に合う先生が見つかりませんでした。</p>
 {% endif %}
