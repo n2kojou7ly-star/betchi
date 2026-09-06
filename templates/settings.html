@@ -26,6 +26,98 @@ base.html の block 名は role.html を見本にしています。
     - owned_effects: そのユーザーが交換済みの「エフェクト」カテゴリのitems
     -------------------------------------------------------- #}
 
+    {# --------------------------------------------------------
+    教科・トピックのレイアウトはここで完結させる（base.css には触れない）。
+    スクリーンショットでチェックボックスと教科名が重なっていた原因は、
+    input/labelのデフォルト余白が詰まっていたことと、各教科ブロックの
+    幅・間隔が指定されていなかったことなので、明示的に指定する。
+    -------------------------------------------------------- #}
+    <style>
+        .set-subject-list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px 32px;
+            margin: 12px 0 0;
+            padding: 0;
+        }
+
+        .set-subject-row {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .set-subject-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .set-subject-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .set-subject-checkbox {
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        .set-subject-name {
+            display: inline-block;
+        }
+
+        .set-subject-toggle {
+            margin-top: 6px;
+            padding: 2px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #f5f5f5;
+            cursor: pointer;
+            line-height: 1.4;
+        }
+
+        .set-subject-arrow {
+            display: inline-block;
+            transition: transform 0.15s ease;
+        }
+
+        .set-subject-toggle-open .set-subject-arrow {
+            transform: rotate(180deg);
+        }
+
+        .set-topic-list {
+            list-style: none;
+            margin: 8px 0 0;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: #fafafa;
+            border-radius: 4px;
+            min-width: 140px;
+        }
+
+        /* [hidden]属性はUAスタイルでdisplay:noneになるはずだが、
+           上のdisplay:flexの方が詳細度で勝ってしまい常時表示になる。
+           そのため明示的に上書きして、▼を押すまでは隠れるようにする。 */
+        .set-topic-list[hidden] {
+            display: none;
+        }
+
+        .set-topic-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+    </style>
+
     <form class="set-form" action="{{ url_for('settings') }}" method="post">
 
         {# ---------- アイコン画像（5件から選択） ---------- #}
@@ -133,51 +225,107 @@ base.html の block 名は role.html を見本にしています。
             <p class="set-hint">検索結果の一覧には出ません（先生の詳細画面でのみ表示されます）。</p>
         </div>
 
-        {# ---------- 対応教科（先生として教える科目） ---------- #}
+        {# ---------- 対応教科（先生として教える科目） ----------
+        points.html と同じ「▼クリックで開閉」のアコーディオンUI。
+        開閉はトグルボタン(.set-subject-toggle)が担当し、
+        教科として教えるかどうかはチェックボックス(.set-subject-checkbox)が担当する。
+        両者は独立しているので、チェックを入れなくても中身を確認できる。
+        ---------- #}
         <div class="set-field">
             <span class="set-label">教えられる教科</span>
-            <p class="set-hint">チェックした教科があると、先生として一覧に表示されます。教科の中の分野（トピック）も選べます。</p>
+            <p class="set-hint">チェックした教科があると、先生として一覧に表示されます。▼を押すと教科の中の分野（トピック）が見られます。</p>
 
-            <div class="set-subject-list">
+            <ul class="set-subject-list">
                 {% for subject in subjects %}
-                <div class="set-subject-block">
-                    <label class="set-subject-item">
-                        <input type="checkbox" name="teaching_subject_ids" class="set-subject-checkbox"
-                            data-topics-target="set-topics-{{ subject.subject_id }}" value="{{ subject.subject_id }}" {%
-                            if subject.subject_id in teaching_subject_ids %}checked{% endif %}>
-                        {{ subject.subject_name }}
-                    </label>
-
-                    {% set topics = topics_by_subject.get(subject.subject_id) if topics_by_subject else None %}
-                    {% if topics %}
-                    <div class="set-topic-list" id="set-topics-{{ subject.subject_id }}" {% if subject.subject_id not in
-                        teaching_subject_ids %}hidden{% endif %}>
-                        {% for topic in topics %}
-                        <label class="set-topic-item">
-                            <input type="checkbox" name="teaching_topic_ids" value="{{ topic.topic_id }}" {% if
-                                topic.topic_id in teaching_topic_ids %}checked{% endif %}>
-                            {{ topic.topic_name }}
+                {% set topics = topics_by_subject.get(subject.subject_id) if topics_by_subject else None %}
+                <li class="set-subject-row">
+                    <div class="set-subject-header">
+                        <label class="set-subject-item">
+                            <input type="checkbox" name="teaching_subject_ids" class="set-subject-checkbox"
+                                data-topics-target="set-topics-{{ subject.subject_id }}"
+                                value="{{ subject.subject_id }}" {% if subject.subject_id in teaching_subject_ids
+                                %}checked{% endif %}>
+                            <span class="set-subject-name">{{ subject.subject_name }}</span>
                         </label>
-                        {% endfor %}
+
+                        {% if topics %}
+                        <button class="set-subject-toggle" type="button"
+                            data-target="set-topics-{{ subject.subject_id }}">
+                            <span class="set-subject-arrow">▼</span>
+                        </button>
+                        {% endif %}
                     </div>
+
+                    {% if topics %}
+                    <ul class="set-topic-list" id="set-topics-{{ subject.subject_id }}" hidden>
+                        {% for topic in topics %}
+                        <li class="set-topic-row">
+                            <label class="set-topic-item">
+                                <input type="checkbox" name="teaching_topic_ids" value="{{ topic.topic_id }}" {% if
+                                    topic.topic_id in teaching_topic_ids %}checked{% endif %}>
+                                {{ topic.topic_name }}
+                            </label>
+                        </li>
+                        {% endfor %}
+                    </ul>
                     {% endif %}
-                </div>
+                </li>
                 {% endfor %}
-            </div>
+            </ul>
         </div>
 
         {# --------------------------------------------------------
-        教科チェックの開閉に合わせてトピック一覧を表示/非表示にするJS。
+        教科⇔トピックのJS。開閉(アコーディオン)とチェック連動は別の話として分離。
+
+        [開閉] points.html と同じ「▼ボタンで表示/非表示」。
+        チェックの有無に関係なく、いつでも開閉できる。
+
+        [チェック連動]
+        - 教科ON → 配下トピック全部ON
+        - 教科OFF → 配下トピック全部OFF
+        - トピックON → 親の教科を自動でON（他のトピックには影響しない）
+
         settings.html はこうた担当ファイルなのでこの中で完結させる。
         -------------------------------------------------------- #}
         <script>
+            // 開閉: ▼ボタンでトピック一覧をトグル（points.html と同じ動き）
+            document.querySelectorAll('.set-subject-toggle').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var targetId = btn.getAttribute('data-target');
+                    var list = document.getElementById(targetId);
+                    if (!list) return;
+                    var isOpen = !list.hidden;
+                    list.hidden = isOpen;
+                    btn.classList.toggle('set-subject-toggle-open', !isOpen);
+                });
+            });
+
+            // チェック連動: 教科チェック → 配下トピックを一括ON/OFF
             document.querySelectorAll('.set-subject-checkbox').forEach(function (checkbox) {
                 checkbox.addEventListener('change', function () {
                     var targetId = checkbox.getAttribute('data-topics-target');
                     var list = document.getElementById(targetId);
                     if (list) {
-                        list.hidden = !checkbox.checked;
+                        list.querySelectorAll('input[type="checkbox"]').forEach(function (topicCheckbox) {
+                            topicCheckbox.checked = checkbox.checked;
+                        });
                     }
+                });
+            });
+
+            // チェック連動: トピックチェック → 親教科を自動でON（他のトピックには影響しない）
+            document.querySelectorAll('.set-topic-list').forEach(function (list) {
+                list.querySelectorAll('input[type="checkbox"]').forEach(function (topicCheckbox) {
+                    topicCheckbox.addEventListener('change', function () {
+                        if (!topicCheckbox.checked) return; // OFF時は何もしない（他トピックの状態を保つ）
+
+                        var subjectCheckbox = document.querySelector(
+                            '.set-subject-checkbox[data-topics-target="' + list.id + '"]'
+                        );
+                        if (subjectCheckbox && !subjectCheckbox.checked) {
+                            subjectCheckbox.checked = true;
+                        }
+                    });
                 });
             });
         </script>
