@@ -3,23 +3,110 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}ベッチ{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link
         href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Zen+Maru+Gothic:wght@400;700&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
     <header class="common-header">
-        <button class="common-menu-btn">☰</button>
+        {% if session.get('student_id') %}
+        <button class="common-menu-btn" id="common-menu-btn" aria-label="メニュー">☰</button>
+        {% else %}
+        <span class="common-menu-spacer"></span>
+        {% endif %}
+
         <h1 class="common-logo">ベッチ</h1>
-        <div class="common-icon">●</div>
+
+        {% if session.get('student_id') and me_user %}
+        <a href="{{ url_for('settings') }}" class="common-icon-link">
+            {% if me_user.icon %}
+            <img src="{{ url_for('static', filename='img/' + me_user.icon) }}" class="common-icon-img">
+            {% else %}
+            <span class="common-icon-placeholder">{{ me_user.nickname[0] }}</span>
+            {% endif %}
+        </a>
+        {% else %}
+        <span class="common-menu-spacer"></span>
+        {% endif %}
     </header>
+
+    {% if session.get('student_id') %}
+    <div class="common-drawer-overlay" id="common-drawer-overlay" hidden></div>
+
+    <nav class="common-drawer" id="common-drawer">
+        {% if me_user %}
+        <div class="common-drawer-profile">
+            <div class="avatar-wrap">
+                {% if me_user.icon %}
+                <img src="{{ url_for('static', filename='img/' + me_user.icon) }}" class="avatar-img">
+                {% endif %}
+                {% if me_user.icon_frame_item_id %}
+                <img src="{{ url_for('static', filename='img/frames/' + me_user.icon_frame_item_id + '.png') }}"
+                    class="avatar-frame">
+                {% endif %}
+            </div>
+            <div class="common-drawer-name">{{ me_user.nickname }}</div>
+            {% if me_catchcopy %}
+            <div class="common-drawer-catchcopy">{{ me_catchcopy }}</div>
+            {% endif %}
+            <div class="common-drawer-point">{{ me_balance }} P</div>
+        </div>
+        {% endif %}
+
+        <ul class="common-drawer-list">
+            {% if session.get('role') == 'teacher' %}
+            <li><a href="{{ url_for('teacher') }}">教師メイン</a></li>
+            <li><a href="{{ url_for('student') }}">生徒として使う</a></li>
+            {% else %}
+            <li><a href="{{ url_for('student') }}">生徒メイン</a></li>
+            <li><a href="{{ url_for('teacher') }}">先生として使う</a></li>
+            {% endif %}
+            <li><a href="{{ url_for('chat_list') }}">チャット</a></li>
+            <li><a href="{{ url_for('points') }}">ポイント</a></li>
+            <li><a href="{{ url_for('settings') }}">設定</a></li>
+            <li><a href="{{ url_for('role') }}">立場を選び直す</a></li>
+            <li><a href="{{ url_for('logout') }}" class="common-drawer-logout">ログアウト</a></li>
+        </ul>
+    </nav>
+    {% endif %}
 
     <main>
         {% block content %}{% endblock %}
     </main>
+
+    {% if session.get('student_id') %}
+    <script>
+        (function () {
+            var btn = document.getElementById('common-menu-btn');
+            var drawer = document.getElementById('common-drawer');
+            var overlay = document.getElementById('common-drawer-overlay');
+
+            function open() {
+                drawer.classList.add('common-drawer-open');
+                overlay.hidden = false;
+            }
+
+            function close() {
+                drawer.classList.remove('common-drawer-open');
+                overlay.hidden = true;
+            }
+
+            btn.addEventListener('click', function () {
+                if (drawer.classList.contains('common-drawer-open')) {
+                    close();
+                } else {
+                    open();
+                }
+            });
+
+            overlay.addEventListener('click', close);
+        })();
+    </script>
+    {% endif %}
 </body>
 
 </html>

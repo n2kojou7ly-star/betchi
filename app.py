@@ -11,9 +11,27 @@ ICONS = ['icons/icon1.png', 'icons/icon2.png', 'icons/icon3.png',
 
 @app.before_request
 def require_login():
-    allowed = ('index', 'login', 'signup', 'static', 'dev')
+    allowed = ('index', 'login', 'signup', 'reset_password', 'static', 'dev')
     if request.endpoint not in allowed and 'student_id' not in session:
         return redirect(url_for('login'))
+
+@app.context_processor
+def inject_me():
+    student_id = session.get('student_id')
+    if not student_id:
+        return {}
+    user = db.get_user_by_id(student_id)
+    if user is None:
+        return {}
+    catchcopy = None
+    if user['catchcopy_item_id']:
+        item = db.get_item(user['catchcopy_item_id'])
+        catchcopy = item['item_name'] if item else None
+    return {
+        'me_user': user,
+        'me_catchcopy': catchcopy,
+        'me_balance': db.get_point_balance(student_id)
+    }
 
 
 @app.route('/')
@@ -277,6 +295,10 @@ def dev_action():
     elif action == 'logout':
         session.clear()
     return redirect(url_for('dev'))
+
+@app.route('/reset-password')
+def reset_password():
+    return render_template('forget.html')
 
 
 if __name__ == '__main__':

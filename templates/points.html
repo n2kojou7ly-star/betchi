@@ -43,7 +43,9 @@
             </button>
             <ul class="point-item-sublist" id="{{ list_id }}" hidden>
                 {% for item in items %}
-                {% if item.category == category_name %}
+                {# required_point が 0 のアイテムは「無料配布/デフォルト所持」扱いなので、
+                ポイント交換ショップの一覧には出さない。 #}
+                {% if item.category == category_name and item.required_point > 0 %}
                 <li class="point-subitem">
                     <span class="point-subitem-name">{{ item.item_name }}</span>
                     <span class="point-subitem-cost">{{ item.required_point }}P</span>

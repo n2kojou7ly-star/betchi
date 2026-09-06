@@ -614,6 +614,117 @@ main {
     margin: 0 0 20px;
 }
 
+/* ---------- ヘッダーのアイコンとメニュー ---------- */
+.common-menu-spacer {
+    width: 36px;
+    display: inline-block;
+}
+
+.common-icon-link {
+    display: block;
+    width: 36px;
+    height: 36px;
+    text-decoration: none;
+}
+
+.common-icon-img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #FFFFFF;
+    box-sizing: border-box;
+}
+
+.common-icon-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #FFFFFF;
+    color: #FFFFFF;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/* 引き出しメニュー */
+.common-drawer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 90;
+}
+
+.common-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px;
+    height: 100%;
+    background-color: #FFFFFF;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 100;
+    overflow-y: auto;
+}
+
+.common-drawer-open {
+    transform: translateX(0);
+}
+
+.common-drawer-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 24px 16px 16px;
+    background-color: var(--main-color);
+    color: #FFFFFF;
+}
+
+.common-drawer-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.common-drawer-catchcopy {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.common-drawer-point {
+    margin-top: 4px;
+    font-size: 14px;
+}
+
+.common-drawer-list {
+    list-style: none;
+    margin: 0;
+    padding: 8px 0;
+}
+
+.common-drawer-list a {
+    display: block;
+    padding: 14px 20px;
+    color: var(--text-color);
+    text-decoration: none;
+    border-bottom: 1px solid #EEEEEE;
+}
+
+.common-drawer-list a:hover {
+    background-color: #F5F0EC;
+}
+
+.common-drawer-logout {
+    color: #C0392B !important;
+}
+
 /* ==========================================================
    ここから かとはる 担当分 
    ========================================================== */
