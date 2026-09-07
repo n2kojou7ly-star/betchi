@@ -2,10 +2,10 @@
 {% block title %}ベッチ - 生徒メイン{% endblock %}
 
 {% block content %}
-<h2>何を勉強しますか？</h2>
+<h2 class="stu-heading">何を勉強しますか？</h2>
 
 <form method="get" class="stu-search-form">
-    <select name="subject_id" id="stu-subject-select" required>
+    <select name="subject_id" id="stu-subject-select" class="stu-select" required>
         <option value="">教科を選択</option>
         {% for s in subjects %}
         <option value="{{ s.subject_id }}" {% if subject_id==s.subject_id|string %}selected{% endif %}>
@@ -14,7 +14,7 @@
         {% endfor %}
     </select>
 
-    <select name="topic_id" id="stu-topic-select">
+    <select name="topic_id" id="stu-topic-select" class="stu-select">
         <option value="">分野を指定しない</option>
         {% for s in subjects %}
         {% for t in topics_by_subject.get(s.subject_id, []) %}
@@ -26,8 +26,8 @@
         {% endfor %}
     </select>
 
-    <input type="date" name="date" value="{{ date or '' }}" required>
-    <button type="submit">検索</button>
+    <input type="date" name="date" value="{{ date or '' }}" class="stu-date-input" required>
+    <button type="submit" class="stu-search-btn">検索</button>
 </form>
 
 <script>
@@ -316,21 +316,27 @@
 </script>
 
 {% else %}
-<p>条件に合う先生が見つかりませんでした。</p>
+<p class="stu-empty">条件に合う先生が見つかりませんでした。</p>
 {% endif %}
 {% endif %}
 
 {% if my_requests %}
-<h3>申し込み状況</h3>
+<h3 class="stu-subheading">返事を待っています</h3>
 <ul class="stu-request-list">
     {% for r in my_requests %}
-    <li>{{ r.nickname }}さん / {{ r.subject_name }} / {{ r.status }}</li>
+    <li class="tea-request-item">
+        <div>
+            <strong>{{ r.nickname }}</strong>さん / {{ r.subject_name }}<br>
+            {{ r.slot_text }}
+        </div>
+        <span class="stu-result-slots">申請中</span>
+    </li>
     {% endfor %}
 </ul>
 {% endif %}
 
 {% if upcoming %}
-<h3>これからの授業</h3>
+<h3 class="stu-subheading">これからの授業</h3>
 <ul class="stu-request-list">
     {% for u in upcoming %}
     <li class="tea-request-item">
@@ -347,7 +353,7 @@
 {% endif %}
 
 {% if pending %}
-<h3>授業の完了確認</h3>
+<h3 class="stu-subheading">授業の完了確認</h3>
 <ul class="stu-request-list">
     {% for p in pending %}
     <li class="tea-request-item">
@@ -365,7 +371,7 @@
         <form method="post" action="{{ url_for('complete') }}">
             <input type="hidden" name="request_id" value="{{ p.request_id }}">
             <input type="hidden" name="back" value="{{ request.path }}">
-            <button type="submit">完了</button>
+            <button type="submit" class="stu-complete-btn">完了</button>
         </form>
         {% endif %}
     </li>

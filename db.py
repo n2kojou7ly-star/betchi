@@ -92,7 +92,9 @@ def set_teaching_subjects(student_id, subject_ids):
 
 def get_all_items():
     conn = get_conn()
-    rows = conn.execute("SELECT * FROM items ORDER BY item_id").fetchall()
+    rows = conn.execute(
+        "SELECT * FROM items WHERE required_point > 0 ORDER BY item_id"
+    ).fetchall()
     conn.close()
     return rows
 
@@ -201,11 +203,15 @@ def get_requests_for_teacher(teacher_id):
 def get_requests_for_student(student_id):
     conn = get_conn()
     rows = conn.execute("""
-        SELECT r.*, u.nickname, s.subject_name
+        SELECT r.*, u.nickname, s.subject_name,
+               (SELECT GROUP_CONCAT(a.date || ' ' || a.period || '時限', ', ')
+                FROM match_request_slots ms
+                JOIN availabilities a ON a.slot_id = ms.slot_id
+                WHERE ms.request_id = r.request_id) AS slot_text
         FROM match_requests r
         JOIN users u ON u.student_id = r.teacher_id
         JOIN subjects s ON s.subject_id = r.subject_id
-        WHERE r.student_id = ?
+        WHERE r.student_id = ? AND r.status = '申請中'
         ORDER BY r.created_at DESC
     """, (student_id,)).fetchall()
     conn.close()
@@ -291,7 +297,7 @@ def get_chat_rooms(student_id):
                u.nickname AS partner_name,
                u.icon AS partner_icon,
                u.icon_frame_item_id AS partner_frame,
-               u.effect_item_id AS partner_effect,
+               u.effect_item_id AS partner_effect
         FROM chat_rooms r
         JOIN users u ON u.student_id =
             CASE WHEN r.student_id = ? THEN r.teacher_id ELSE r.student_id END

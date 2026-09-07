@@ -2,108 +2,112 @@
 {% block title %}ベッチ - 教師メイン{% endblock %}
 
 {% block content %}
-<h2>教師メイン</h2>
+<div class="tea-page">
 
-<h3>空き枠を追加</h3>
-<p class="stu-hint">教えられる教科を設定していないと、空き枠を登録できません。</p>
-<form method="post">
-    <input type="date" name="date" required>
-    <select name="period">
-        {% for p in range(1, 9) %}
-        <option value="{{ p }}">{{ p }}時限</option>
+    <h2 class="tea-title">教師メイン</h2>
+
+    <h3 class="tea-section-title">空き枠を追加</h3>
+    <p class="tea-hint">教えられる教科を設定していないと、空き枠を登録できません。</p>
+    <form method="post" class="tea-form">
+        <input type="date" name="date" class="tea-date-input" required>
+        <select name="period" class="tea-select">
+            {% for p in range(1, 9) %}
+            <option value="{{ p }}">{{ p }}時限</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="tea-submit-btn">追加</button>
+    </form>
+
+    <h3 class="tea-section-title">登録済みの空き枠</h3>
+    {% if slots %}
+    <ul class="tea-slot-list">
+        {% for slot in slots %}
+        <li class="tea-slot-item">
+            <span class="tea-slot-text">{{ slot.date }} {{ slot.period }}時限（{{ slot.status }}）</span>
+            <form method="post" class="tea-inline-form">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="slot_id" value="{{ slot.slot_id }}">
+                <button type="submit" class="tea-delete-btn">削除</button>
+            </form>
+        </li>
         {% endfor %}
-    </select>
-    <button type="submit">追加</button>
-</form>
+    </ul>
+    {% else %}
+    <p class="tea-empty">まだ登録がありません。</p>
+    {% endif %}
 
-<h3>登録済みの空き枠</h3>
-{% if slots %}
-<ul class="tea-slot-list">
-    {% for slot in slots %}
-    <li>
-        {{ slot.date }} {{ slot.period }}時限（{{ slot.status }}）
-        <form method="post" style="display:inline">
-            <input type="hidden" name="action" value="delete">
-            <input type="hidden" name="slot_id" value="{{ slot.slot_id }}">
-            <button type="submit">削除</button>
-        </form>
-    </li>
-    {% endfor %}
-</ul>
-{% else %}
-<p>まだ登録がありません。</p>
-{% endif %}
+    <h3 class="tea-section-title">申し込みが来ています</h3>
+    {% if requests %}
+    <ul class="tea-request-list">
+        {% for r in requests %}
+        <li class="tea-request-item">
+            <div class="tea-request-info">
+                <span class="tea-request-name">{{ r.nickname }}</span>さん / {{ r.subject_name }}<br>
+                <span class="tea-request-slot">{{ r.slot_text }}</span>
+            </div>
+            <div class="tea-request-actions">
+                <form method="post" class="tea-inline-form">
+                    <input type="hidden" name="action" value="approve">
+                    <input type="hidden" name="request_id" value="{{ r.request_id }}">
+                    <button type="submit" class="tea-approve-btn">承認</button>
+                </form>
+                <form method="post" class="tea-inline-form">
+                    <input type="hidden" name="action" value="reject">
+                    <input type="hidden" name="request_id" value="{{ r.request_id }}">
+                    <button type="submit" class="tea-reject-btn">却下</button>
+                </form>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="tea-empty">今は申し込みがありません。</p>
+    {% endif %}
 
-<h3>申し込みが来ています</h3>
-{% if requests %}
-<ul class="tea-request-list">
-    {% for r in requests %}
-    <li class="tea-request-item">
-        <div>
-            <strong>{{ r.nickname }}</strong>さん / {{ r.subject_name }}<br>
-            {{ r.slot_text }}
-        </div>
-        <div class="tea-request-actions">
-            <form method="post" style="display:inline">
-                <input type="hidden" name="action" value="approve">
-                <input type="hidden" name="request_id" value="{{ r.request_id }}">
-                <button type="submit">承認</button>
-            </form>
-            <form method="post" style="display:inline">
-                <input type="hidden" name="action" value="reject">
-                <input type="hidden" name="request_id" value="{{ r.request_id }}">
-                <button type="submit">却下</button>
-            </form>
-        </div>
-    </li>
-    {% endfor %}
-</ul>
-{% else %}
-<p>今は申し込みがありません。</p>
-{% endif %}
-
-{% if upcoming %}
-<h3>これからの授業</h3>
-<ul class="stu-request-list">
-    {% for u in upcoming %}
-    <li class="tea-request-item">
-        <div>
-            <strong>{{ u.partner_name }}</strong>さん / {{ u.subject_name }}<br>
-            {{ u.slot_text }}
-        </div>
-        {% if u.room_id %}
-        <a href="{{ url_for('chat', room_id=u.room_id) }}" class="stu-apply-link">チャット</a>
-        {% endif %}
-    </li>
-    {% endfor %}
-</ul>
-{% endif %}
-
-{% if pending %}
-<h3>授業の完了確認</h3>
-<ul class="stu-request-list">
-    {% for p in pending %}
-    <li class="tea-request-item">
-        <div>
-            {{ p.nickname }}さん / {{ p.subject_name }} / {{ p.slot_count }}コマ<br>
-            {% if p.status == '完了待ち' %}
-            {% if p.completed_by == session['student_id'] %}
-            相手の確認待ちです
-            {% else %}
-            <strong>相手が完了を押しました</strong>
+    {% if upcoming %}
+    <h3 class="tea-section-title">これからの授業</h3>
+    <ul class="tea-request-list">
+        {% for u in upcoming %}
+        <li class="tea-request-item">
+            <div class="tea-request-info">
+                <span class="tea-request-name">{{ u.partner_name }}</span>さん / {{ u.subject_name }}<br>
+                <span class="tea-request-slot">{{ u.slot_text }}</span>
+            </div>
+            {% if u.room_id %}
+            <a href="{{ url_for('chat', room_id=u.room_id) }}" class="stu-apply-link">チャット</a>
             {% endif %}
-            {% endif %}
-        </div>
-        {% if p.status == '承認' or p.completed_by != session['student_id'] %}
-        <form method="post" action="{{ url_for('complete') }}">
-            <input type="hidden" name="request_id" value="{{ p.request_id }}">
-            <input type="hidden" name="back" value="{{ request.path }}">
-            <button type="submit">完了</button>
-        </form>
-        {% endif %}
-    </li>
-    {% endfor %}
-</ul>
-{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
 
+    {% if pending %}
+    <h3 class="tea-section-title">授業の完了確認</h3>
+    <ul class="tea-request-list">
+        {% for p in pending %}
+        <li class="tea-request-item">
+            <div class="tea-request-info">
+                <span class="tea-request-name">{{ p.nickname }}</span>さん / {{ p.subject_name }} / {{ p.slot_count
+                }}コマ<br>
+                {% if p.status == '完了待ち' %}
+                {% if p.completed_by == session['student_id'] %}
+                <span class="tea-waiting-text">相手の確認待ちです</span>
+                {% else %}
+                <span class="tea-notice-text">相手が完了を押しました</span>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% if p.status == '承認' or p.completed_by != session['student_id'] %}
+            <form method="post" action="{{ url_for('complete') }}" class="tea-inline-form">
+                <input type="hidden" name="request_id" value="{{ p.request_id }}">
+                <input type="hidden" name="back" value="{{ request.path }}">
+                <button type="submit" class="tea-complete-btn">完了</button>
+            </form>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+</div>
 {% endblock %}
