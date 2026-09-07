@@ -109,7 +109,9 @@ def student():
         date=date,
         my_requests=db.get_requests_for_student(student_id),
         pending=db.get_pending_completions(student_id),
-        upcoming=db.get_upcoming_lessons(student_id),        
+        upcoming=db.get_upcoming_lessons(student_id),    
+        reviewable=db.get_reviewable(student_id),
+        review_remain=db.WEEKLY_REVIEW_LIMIT - db.get_weekly_review_used(student_id),    
     )
 
 
@@ -202,7 +204,8 @@ def apply(teacher_id):
         slots=db.get_open_slots(teacher_id, date),
         date=date,
         subject_id=subject_id,
-        busy=db.get_busy_periods(session['student_id'], date)
+        busy=db.get_busy_periods(session['student_id'], date),
+        reviews=db.get_reviews_for(teacher_id)
     )
 
 
@@ -302,6 +305,24 @@ def dev_action():
 @app.route('/reset-password')
 def reset_password():
     return render_template('forget.html')
+
+@app.route('/review', methods=['POST'])
+def review():
+    student_id = session['student_id']
+    point = int(request.form.get('point', 0) or 0)
+    used = db.get_weekly_review_used(student_id)
+    remain = db.WEEKLY_REVIEW_LIMIT - used
+    if point < 0:
+        point = 0
+    if point > remain:
+        point = remain
+    db.add_review(
+        request.form['request_id'],
+        student_id,
+        point,
+        request.form.get('comment', '').strip()
+    )
+    return redirect(url_for('student'))
 
 
 if __name__ == '__main__':

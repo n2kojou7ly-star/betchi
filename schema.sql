@@ -134,3 +134,18 @@ CREATE TABLE teaching_topics (
     FOREIGN KEY (student_id) REFERENCES users(student_id),
     FOREIGN KEY (topic_id) REFERENCES subject_topics(topic_id)
 );
+
+DROP TABLE IF EXISTS reviews;
+
+CREATE TABLE reviews (
+    review_id     INTEGER PRIMARY KEY AUTOINCREMENT,
+    request_id    INTEGER NOT NULL UNIQUE,
+    giver_id      TEXT NOT NULL,
+    receiver_id   TEXT NOT NULL,
+    point         INTEGER NOT NULL DEFAULT 0,
+    comment       TEXT,
+    created_at    TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+    FOREIGN KEY (request_id) REFERENCES match_requests(request_id),
+    FOREIGN KEY (giver_id) REFERENCES users(student_id),
+    FOREIGN KEY (receiver_id) REFERENCES users(student_id)
+);

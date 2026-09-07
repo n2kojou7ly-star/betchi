@@ -50,7 +50,7 @@
     {% endif %}
 </div>
 
-<p><a href="{{ url_for('chat_list') }}">戻る</a></p>
+<a href="{{ url_for('chat_list') }}" class="chat-back">← チャット一覧</a>
 
 <script>
     var roomId = {{ room.room_id }};

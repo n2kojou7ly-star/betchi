@@ -142,6 +142,10 @@ def search_teachers(subject_id, date, exclude_student_id, topic_id=None):
              WHERE tt.student_id = u.student_id AND st.subject_id = ?) AS topic_text,
             (SELECT COUNT(*) FROM teaching_topics tt2
              WHERE tt2.student_id = u.student_id AND tt2.topic_id = ?) AS topic_match,
+            (SELECT ROUND(AVG(point), 1) FROM reviews v
+             WHERE v.receiver_id = u.student_id AND v.point > 0) AS avg_review,
+            (SELECT COUNT(*) FROM reviews v2
+             WHERE v2.receiver_id = u.student_id) AS review_count,
             COUNT(a.slot_id) AS slot_count,
             COALESCE((SELECT SUM(amount) FROM point_transactions p
                       WHERE p.student_id = u.student_id), 0) AS balance
@@ -598,5 +602,69 @@ def get_upcoming_lessons(student_id):
           AND r.status IN ('承認', '完了待ち')
         ORDER BY slot_text
     """, (student_id, student_id, student_id, student_id)).fetchall()
+    conn.close()
+    return rows
+
+WEEKLY_REVIEW_LIMIT = 100
+
+def get_reviewable(student_id):
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT r.request_id, u.nickname, s.subject_name, r.teacher_id
+        FROM match_requests r
+        JOIN users u ON u.student_id = r.teacher_id
+        JOIN subjects s ON s.subject_id = r.subject_id
+        WHERE r.student_id = ? AND r.status = '完了'
+          AND NOT EXISTS (SELECT 1 FROM reviews v WHERE v.request_id = r.request_id)
+        ORDER BY r.completed_at DESC
+    """, (student_id,)).fetchall()
+    conn.close()
+    return rows
+
+def get_weekly_review_used(student_id):
+    conn = get_conn()
+    row = conn.execute("""
+        SELECT COALESCE(SUM(point), 0) AS used FROM reviews
+        WHERE giver_id = ?
+          AND date(created_at) >= date('now', 'localtime', 'weekday 0', '-6 days')
+    """, (student_id,)).fetchone()
+    conn.close()
+    return row["used"]
+
+def add_review(request_id, giver_id, point, comment):
+    conn = get_conn()
+    req = conn.execute(
+        "SELECT * FROM match_requests WHERE request_id = ? AND student_id = ? AND status = '完了'",
+        (request_id, giver_id)
+    ).fetchone()
+    if req is None:
+        conn.close()
+        return False
+    try:
+        conn.execute(
+            "INSERT INTO reviews (request_id, giver_id, receiver_id, point, comment) VALUES (?, ?, ?, ?, ?)",
+            (request_id, giver_id, req["teacher_id"], point, comment)
+        )
+        if point > 0:
+            conn.execute(
+                "INSERT INTO point_transactions (student_id, amount, reason, related_request_id) VALUES (?, ?, 'レビュー', ?)",
+                (req["teacher_id"], point, request_id)
+            )
+        conn.commit()
+    except sqlite3.IntegrityError:
+        conn.close()
+        return False
+    conn.close()
+    return True
+
+def get_reviews_for(student_id, limit=3):
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT v.point, v.comment, v.created_at, u.nickname
+        FROM reviews v
+        JOIN users u ON u.student_id = v.giver_id
+        WHERE v.receiver_id = ? AND v.comment IS NOT NULL AND v.comment != ''
+        ORDER BY v.review_id DESC LIMIT ?
+    """, (student_id, limit)).fetchall()
     conn.close()
     return rows

@@ -87,6 +87,9 @@
                 <div class="swipe-meta">
                     <span>空き {{ t.slot_count }} 枠</span>
                     <span>{{ t.balance }} P</span>
+                    {% if t.review_count %}
+                    <span>評価 {{ t.avg_review or 0 }}P × {{ t.review_count }}件</span>
+                    {% endif %}
                 </div>
             </div>
             <div class="swipe-badge swipe-badge-like">ライク</div>
@@ -374,6 +377,29 @@
             <button type="submit" class="stu-complete-btn">完了</button>
         </form>
         {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if reviewable %}
+<h3 class="stu-subheading">レビューを書く</h3>
+<p class="stu-hint">今週あと {{ review_remain }} P 配れます</p>
+<ul class="stu-request-list">
+    {% for v in reviewable %}
+    <li class="tea-request-item">
+        <form method="post" action="{{ url_for('review') }}" class="rev-form">
+            <input type="hidden" name="request_id" value="{{ v.request_id }}">
+            <div class="rev-head">
+                <strong>{{ v.nickname }}</strong>さん / {{ v.subject_name }}
+            </div>
+            <div class="rev-row">
+                <input type="number" name="point" min="0" max="{{ review_remain }}" value="0" class="rev-point"
+                    title="送るポイント"> P
+                <input type="text" name="comment" placeholder="コメント（任意）" class="rev-comment">
+                <button type="submit" class="stu-complete-btn">送る</button>
+            </div>
+        </form>
     </li>
     {% endfor %}
 </ul>

@@ -376,6 +376,60 @@ main {
     cursor: pointer;
 }
 
+.rev-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.rev-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rev-point {
+    width: 70px;
+    padding: 8px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.rev-comment {
+    flex: 1;
+    min-width: 0;
+    padding: 8px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.rev-list {
+    border: 1.5px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+    font-size: 13px;
+}
+
+.rev-item {
+    padding: 8px 0;
+    border-top: 1px solid #EEEEEE;
+}
+
+.rev-item:first-of-type {
+    border-top: none;
+}
+
+.rev-item-head {
+    color: var(--accent-color);
+    font-weight: 700;
+}
+
+.rev-item-body {
+    color: #555555;
+}
+
 /* ==========================================================
    スワイプカード
    ========================================================== */
@@ -953,6 +1007,25 @@ main {
     width: 64px;
     height: 64px;
     object-fit: contain;
+}
+
+.chat-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 16px;
+    padding: 8px 16px;
+    border: 1.5px solid var(--main-color);
+    border-radius: 8px;
+    color: var(--main-color);
+    text-decoration: none;
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.chat-back:hover {
+    background-color: var(--bg-soft);
 }
 
 /* ==========================================================

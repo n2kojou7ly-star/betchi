@@ -20,6 +20,18 @@
 </div>
 {% endif %}
 
+{% if reviews %}
+<div class="rev-list">
+    <strong>最近のレビュー</strong>
+    {% for v in reviews %}
+    <div class="rev-item">
+        <div class="rev-item-head">{{ v.nickname }}さん {% if v.point %}+{{ v.point }}P{% endif %}</div>
+        <div class="rev-item-body">{{ v.comment }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 <form method="post">
     <input type="hidden" name="subject_id" value="{{ subject_id }}">
     <ul class="stu-slot-list">
