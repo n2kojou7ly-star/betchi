@@ -142,10 +142,15 @@ def search_teachers(subject_id, date, exclude_student_id, topic_id=None):
              WHERE tt.student_id = u.student_id AND st.subject_id = ?) AS topic_text,
             (SELECT COUNT(*) FROM teaching_topics tt2
              WHERE tt2.student_id = u.student_id AND tt2.topic_id = ?) AS topic_match,
-            (SELECT ROUND(AVG(point), 1) FROM reviews v
-             WHERE v.receiver_id = u.student_id AND v.point > 0) AS avg_review,
+            (SELECT COALESCE(SUM(point), 0) FROM reviews v
+             WHERE v.receiver_id = u.student_id) AS review_point,
             (SELECT COUNT(*) FROM reviews v2
              WHERE v2.receiver_id = u.student_id) AS review_count,
+            (SELECT GROUP_CONCAT(v3.comment, '|||') FROM (
+                SELECT comment FROM reviews
+                WHERE receiver_id = u.student_id AND comment IS NOT NULL AND comment != ''
+                ORDER BY review_id DESC LIMIT 2
+             ) v3) AS recent_comments,
             COUNT(a.slot_id) AS slot_count,
             COALESCE((SELECT SUM(amount) FROM point_transactions p
                       WHERE p.student_id = u.student_id), 0) AS balance

@@ -9,7 +9,28 @@ base.html の block 名は role.html を見本にしています。
 {% block content %}
 <div class="set-page">
 
-    <h1 class="set-title">設定</h1>
+    <h1 class="set-title">マイメニュー</h1>
+
+    <div class="set-preview">
+        <div class="avatar-wrap set-preview-avatar">
+            {% if user.effect_item_id %}
+            <img src="{{ url_for('static', filename='img/effects/' + user.effect_item_id + '.png') }}"
+                class="avatar-effect">
+            {% endif %}
+            {% if user.icon %}
+            <img src="{{ url_for('static', filename='img/' + user.icon) }}" class="avatar-img">
+            {% endif %}
+            {% if user.icon_frame_item_id %}
+            <img src="{{ url_for('static', filename='img/frames/' + user.icon_frame_item_id + '.png') }}"
+                class="avatar-frame">
+            {% endif %}
+        </div>
+        <div class="set-preview-name">{{ user.nickname }}</div>
+        {% if me_catchcopy %}
+        <div class="set-preview-catchcopy">{{ me_catchcopy }}</div>
+        {% endif %}
+        <p class="set-hint">検索結果やチャットでは、この見た目で表示されます。</p>
+    </div>
 
     {# --------------------------------------------------------
     なおきへ: このページを表示するには、

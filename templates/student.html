@@ -88,9 +88,16 @@
                     <span>空き {{ t.slot_count }} 枠</span>
                     <span>{{ t.balance }} P</span>
                     {% if t.review_count %}
-                    <span>評価 {{ t.avg_review or 0 }}P × {{ t.review_count }}件</span>
+                    <span>レビュー {{ t.review_count }}件 / {{ t.review_point }}P</span>
                     {% endif %}
                 </div>
+                {% if t.recent_comments %}
+                <div class="swipe-reviews">
+                    {% for c in t.recent_comments.split('|||') %}
+                    <p class="swipe-review-item">{{ c }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
             <div class="swipe-badge swipe-badge-like">ライク</div>
             <div class="swipe-badge swipe-badge-nope">スキップ</div>
