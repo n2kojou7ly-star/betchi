@@ -209,6 +209,33 @@ main {
    生徒メイン (student.html)
    ========================================================== */
 
+.stu-page {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.stu-page-title {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 32px;
+    color: var(--main-color);
+    margin: 0 0 28px;
+}
+
+.stu-section-heading {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--main-color);
+    margin: 32px 0 16px;
+    padding-bottom: 12px;
+    border-bottom: 1.5px solid var(--border-color);
+}
+
+.stu-section-heading:first-of-type {
+    margin-top: 0;
+}
+
 .stu-heading {
     font-family: var(--font-head);
     font-weight: 700;
@@ -918,6 +945,29 @@ main {
     color: var(--main-color);
 }
 
+.chat-header-name {
+    font-family: var(--font-head);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--main-color);
+}
+
+.chat-call-btn {
+    margin-left: auto;
+    padding: 8px 16px;
+    background: var(--accent-color);
+    color: #FFFFFF;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.chat-call-btn:hover {
+    background: #4A7030;
+}
+
 .chat-messages {
     display: flex;
     flex-direction: column;
@@ -1601,4 +1651,145 @@ main {
     border-radius: 6px;
     overflow-x: auto;
     font-size: 12px;
+}
+
+/* ==========================================================
+   申し込みページ (apply.html)
+   ========================================================== */
+
+.apply-page {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 24px 16px;
+    color: var(--main-color);
+}
+
+.apply-title {
+    font-family: var(--font-head);
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 4px;
+}
+
+.apply-date {
+    font-size: 14px;
+    color: var(--sub-text);
+    margin: 0 0 16px;
+}
+
+.apply-hint {
+    font-size: 12px;
+    color: #999999;
+    margin: 0 0 20px;
+}
+
+.apply-busy-box {
+    border: 1.5px solid var(--main-color);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.apply-busy-title {
+    font-size: 14px;
+    color: var(--main-color);
+}
+
+.apply-busy-list {
+    margin: 8px 0 0;
+    padding-left: 20px;
+}
+
+.apply-review-list {
+    margin-bottom: 24px;
+}
+
+.apply-review-title {
+    display: block;
+    font-size: 14px;
+    color: var(--main-color);
+    margin-bottom: 8px;
+}
+
+.apply-review-item {
+    border-top: 1px solid #EEEEEE;
+    padding: 8px 0;
+}
+
+.apply-review-head {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--main-color);
+}
+
+.apply-review-body {
+    font-size: 13px;
+    color: var(--text-color);
+    margin-top: 2px;
+}
+
+.apply-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.apply-slot-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.apply-slot-item {
+    border: 1.5px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+
+.apply-slot-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.apply-submit-btn {
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: var(--main-color);
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: var(--font-head);
+    cursor: pointer;
+}
+
+.apply-submit-btn:hover {
+    background-color: var(--main-dark);
+}
+
+.apply-empty {
+    font-size: 14px;
+    color: var(--sub-text);
+}
+
+.apply-back-link {
+    margin-top: 24px;
+    text-align: center;
+}
+
+.apply-back-link a {
+    font-size: 14px;
+    color: var(--main-color);
+    text-decoration: underline;
+}
+
+.apply-back-link a:hover {
+    color: var(--main-dark);
 }

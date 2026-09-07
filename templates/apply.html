@@ -2,53 +2,60 @@
 {% block title %}ベッチ - 申し込み{% endblock %}
 
 {% block content %}
-<h2>{{ teacher.nickname }}さんに申し込む</h2>
-<p>{{ date }}</p>
+<div class="apply-page">
 
-{% if slots %}
+    <h2 class="apply-title">{{ teacher.nickname }}さんに申し込む</h2>
+    <p class="apply-date">{{ date }}</p>
 
-<p class="stu-hint">連続した時限のみ選べます。先に承認された申し込みが優先され、同じ時間の他の申し込みは自動で取り消されます。</p>
-
-{% if busy %}
-<div class="stu-busy-box">
-    <strong>この日にすでに入っている予定</strong>
-    <ul>
-        {% for b in busy %}
-        <li>{{ b.period }}時限 / {{ b.nickname }}さん / {{ b.subject_name }}（{{ b.status }}）</li>
+    {% if reviews %}
+    <div class="apply-review-list">
+        <strong class="apply-review-title">最近のレビュー</strong>
+        {% for v in reviews %}
+        <div class="apply-review-item">
+            <div class="apply-review-head">{{ v.nickname }}さん {% if v.point %}+{{ v.point }}P{% endif %}</div>
+            <div class="apply-review-body">{{ v.comment }}</div>
+        </div>
         {% endfor %}
-    </ul>
-</div>
-{% endif %}
-
-{% if reviews %}
-<div class="rev-list">
-    <strong>最近のレビュー</strong>
-    {% for v in reviews %}
-    <div class="rev-item">
-        <div class="rev-item-head">{{ v.nickname }}さん {% if v.point %}+{{ v.point }}P{% endif %}</div>
-        <div class="rev-item-body">{{ v.comment }}</div>
     </div>
-    {% endfor %}
+    {% endif %}
+
+    {% if busy %}
+    <div class="apply-busy-box">
+        <strong class="apply-busy-title">この日にすでに入っている予定</strong>
+        <ul class="apply-busy-list">
+            {% for b in busy %}
+            <li>{{ b.period }}時限 / {{ b.nickname }}さん / {{ b.subject_name }}（{{ b.status }}）</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <p class="apply-hint">
+        連続した時限のみ選べます。先に承認された申し込みが優先され、同じ時間の他の申し込みは自動で取り消されます。
+    </p>
+
+    {% if slots %}
+    <form method="post" class="apply-form">
+        <input type="hidden" name="subject_id" value="{{ subject_id }}">
+        <ul class="apply-slot-list">
+            {% for slot in slots %}
+            <li class="apply-slot-item">
+                <label class="apply-slot-label">
+                    <input type="checkbox" name="slot_ids" value="{{ slot.slot_id }}">
+                    {{ slot.period }}時限
+                </label>
+            </li>
+            {% endfor %}
+        </ul>
+        <button type="submit" class="apply-submit-btn">この時間で申し込む</button>
+    </form>
+    {% else %}
+    <p class="apply-empty">この日に空き枠がありません。</p>
+    {% endif %}
+
+    <p class="apply-back-link">
+        <a href="{{ url_for('student') }}">戻る</a>
+    </p>
+
 </div>
-{% endif %}
-
-<form method="post">
-    <input type="hidden" name="subject_id" value="{{ subject_id }}">
-    <ul class="stu-slot-list">
-        {% for slot in slots %}
-        <li>
-            <label>
-                <input type="checkbox" name="slot_ids" value="{{ slot.slot_id }}">
-                {{ slot.period }}時限
-            </label>
-        </li>
-        {% endfor %}
-    </ul>
-    <button type="submit">この時間で申し込む</button>
-</form>
-{% else %}
-<p>この日に空き枠がありません。</p>
-{% endif %}
-
-<p><a href="{{ url_for('student') }}">戻る</a></p>
 {% endblock %}
